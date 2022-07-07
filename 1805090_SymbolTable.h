@@ -41,15 +41,19 @@ public:
             currentTable = new ScopeTable(tableSize, 1);
         }
     }
-    bool insert(string name, string type){
-        if(currentTable == nullptr) return false;
-        SymbolInfo* si = new SymbolInfo(name, type);
+    bool insert(SymbolInfo* si){
         if(currentTable->insert(si)){
             return true;
         }else{
-            delete si;
             return false;
         }
+    }
+    bool insert(string name, string type){
+        if(currentTable == nullptr) return false;
+        SymbolInfo* si = new SymbolInfo(name, type);
+        if(insert(si)) return true;
+        delete si;
+        return false;
     }
     SymbolInfo* lookUp(string name){
         if(currentTable == nullptr) return nullptr;

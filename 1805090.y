@@ -14,7 +14,7 @@ extern FILE *yyin;
 extern int yylineno;
 SymbolTable *table;
 string builder;
-vector<pair<string, int> > decList;
+vector<pair<string, string> > paramList;
 
 
 void yyerror(char *s)
@@ -22,7 +22,20 @@ void yyerror(char *s)
 	//write your code
 }
 
-void print(string s){cout<<"LINE "<<yylineno<<": "<<s<<endl;}
+void errorr(const char *s){
+	printf("\033[1;31mERROR(at line: %d):  %s \033[0m\n",yylineno, s);
+}
+
+void debug(char *s){
+	printf("\033[1;43m\t\t:  %s \033[0m\n",yylineno, s);
+}
+void debug(string s){
+	printf("\033[1;43m\t\t:  %s \033[0m\n",yylineno, s);
+}
+
+void print(string s){
+	cout<<"LINE "<<yylineno<<": "<<s<<endl;
+}
 
 void printVVector(vector<SymbolInfo*> v){
 	int size = v.size();
@@ -42,11 +55,29 @@ vector<SymbolInfo*>* addDeclaration(vector<SymbolInfo*>* prev, SymbolInfo* id, s
 	prev->push_back(id);
 	return prev;}
 
-vector<SymbolInfo*>* addParameter(vector<SymbolInfo*>* prev, SymbolInfo* id, string specifier){
+void addParamsToScopeTable(){
+	int sz = paramList.size();
+	// cout<<"\t\tSIZE: "<<sz<<endl;
+	for(int i=0; i<sz; i++){
+		SymbolInfo* si = new SymbolInfo(paramList[i].first, "ID");
+		si->setVarType(paramList[i].second);
+		si->setSpec(1);
+		si->setSize(0);
+		if(table->insert(si)){
+			
+		}else{
+			errorr("Multiple parameters with same name!");
+		}
+	}
+	paramList.clear();
+}
+
+vector<SymbolInfo*>* addParameter(vector<SymbolInfo*>* prev, SymbolInfo* id, string specifier, bool flag = true){
 	id->setSpec(1);
 	// id->setSize(stoi(size));
-	id->setType(specifier);
+	id->setVarType(specifier);
 	prev->push_back(id);
+	paramList.push_back({id->getName(), specifier});
 	printVVector(*prev);
 	return prev;}
 
@@ -116,6 +147,72 @@ string getStringFromArgumentList(vector<pair<string*, string*>*> vpss){
 	return builder;
 }
 
+void insertToSymbolTable(string type, vector<SymbolInfo*> v){
+	int sz = v.size();
+	for(int i=0; i<sz; i++){
+		v[i]->setVarType(type);
+		if(table->insert(v[i])){
+
+		}else{
+			errorr("ID ALREADY EXISTS");
+		}
+		// table->printAll();
+	}
+}
+
+void printSomething(){
+	cout<<"printing!"<<endl;
+}
+
+bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2){
+	if(v1 == nullptr && v2 == nullptr) {
+		return true;
+	}
+	if(v1 == nullptr) return false;
+	if(v2 == nullptr) return false;
+	if(v1->size() != v2->size()) return false;
+	int sz = v1->size();
+	for(int i=0; i<sz; i++){
+		if((*v1)[i]->getVarType() != (*v2)[i]->getVarType()) return false;
+	}
+	return true;
+}
+
+void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefined, vector<SymbolInfo*>* v){
+	SymbolInfo* found = table->lookUp(si->getName());
+	si->setSpec(2);
+	si->setSize(isDefined);
+	si->setVarType(specifier);
+	si->setParams(v);
+	if(found == nullptr){
+		table->insert(si);
+		return;
+	}
+	if(found->getSpec() != 2){
+		errorr("VARIBAL AND FUNCTION NAME COLLISION!");
+		return;
+	}
+	if(found->getSize()){
+		errorr("FUNCTION ALREADY DEFINED!");
+		return;
+	}
+	if(!isDefined){
+		errorr("MULTIPLE DECLARATION OF SAME FUNCTION");
+	}else {
+		if(found->getVarType() != si->getVarType()){
+			errorr("function declaration and definition RETURN TYPE mismatched!");
+			return;
+		}
+		if(!matchParameterSignature(si->getParams(), found->getParams())){
+			errorr("Declaration and Definition parameter signature mismatched!");
+			return;
+		}
+		table->remove(si->getName());
+		table->insert(si);
+		return;
+	}
+	// table->printAll();
+}
 
 
 
@@ -155,12 +252,12 @@ start :
 program : program unit {
 		print("program -> program unit");
 		$$ = new string(*$1+"\n"+*$2);
-		cout<<*$$<<endl;
+		// cout<<*$$<<endl;
 	}
 	| unit {
 		print("program -> unit");
 		$$ = $1;
-		cout<<*$$<<endl;
+		// cout<<*$$<<endl;
 	}
 	;
 	
@@ -180,25 +277,32 @@ unit : var_declaration {
 
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 		print("func_declaration -> type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
+		insertFunctionIdToSymbolTable($2, *$1, false, $4);
 		$$ = createFunctionDeclaration(*$1, $2->getName(), *$4);
-		cout<<(*$$)<<endl;
+		// cout<<(*$$)<<endl;
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON {
 		print("func_declaration -> type_specifier ID LPAREN RPAREN SEMICOLON");
+		insertFunctionIdToSymbolTable($2, *$1, false, nullptr);
 		$$ = new string((*$1) + " " + ($2->getName()) + "();");
-		cout<<(*$$)<<endl;
+		// cout<<(*$$)<<endl;
 	}
 	;
 
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement {
+func_definition : type_specifier ID LPAREN parameter_list RPAREN {
+			insertFunctionIdToSymbolTable($2, *$1, true, $4);
+		} compound_statement {
 		print("func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-		$$ = new string(*$1 + " " + $2->getName() + "(" + getParamList(*$4) +")" + *$6);
-		cout<<*$$<<endl;
+		// insertFunctionIdToSymbolTable($2, *$1, true, $4);
+		$$ = new string(*$1 + " " + $2->getName() + "(" + getParamList(*$4) +")" + *$7);
+		// cout<<*$$<<endl;
 	}
-	| type_specifier ID LPAREN RPAREN compound_statement {
+	| type_specifier ID LPAREN RPAREN {
+			insertFunctionIdToSymbolTable($2, *$1, true, nullptr);
+		} compound_statement {
 		print("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
-		$$ = new string(*$1 + " " + $2->getName() + "()" + *$5);
-		cout<<*$$<<endl;
+		$$ = new string(*$1 + " " + $2->getName() + "()" + *$6);
+		// cout<<*$$<<endl;
 	}
 	;				
 
@@ -221,10 +325,11 @@ parameter_list  : parameter_list COMMA type_specifier ID {
 	}
 	;
 
-compound_statement : LCURL statements RCURL {
+compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} statements RCURL {
 		print("compound_statement -> LCURL statements RCURL");
-		$$ = new string("{\n"+*$2+"\n}");
-		cout<<*$$<<endl;
+		$$ = new string("{\n"+*($3)+"\n}");
+		// cout<<*$$<<endl;
+		table->exitScope();
 	}
 	| LCURL RCURL {
 		print("compound_statement -> LCURL RCURL");
@@ -235,7 +340,8 @@ compound_statement : LCURL statements RCURL {
 var_declaration : type_specifier declaration_list SEMICOLON {
 		print("var_declaration -> type_specifier declaration_list SEMICOLON");
 		$$ = createVarDeclaration(*$1, *$2);
-		cout<<(*$$)<<endl;
+		insertToSymbolTable(*$1, *$2);
+		// cout<<(*$$)<<endl;
 	}
 	;
 
@@ -266,7 +372,7 @@ statements : statement {
 	| statements statement {
 		print("statements -> statements statement");
 		$$ = new string((*$1)+"\n"+(*$2));
-		cout<<(*$$)<<endl;
+		// cout<<(*$$)<<endl;
 	}
 	;
 
@@ -453,6 +559,7 @@ arguments : arguments COMMA logic_expression {
 %%
 int main(int argc,char *argv[])
 {
+	table = new SymbolTable(7);
 	yyparse();
 	return 0;
 }

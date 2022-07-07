@@ -1,5 +1,15 @@
 {
     "files.associations": {
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "*.tcc": "c",
+        "forward_list": "c",
+        "list": "c",
+        "typeindex": "c",
+        "typeinfo": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "unordered_set": "c",
+        "vector": "c"
     }
 }
