@@ -77,11 +77,13 @@ public:
     }
     void printAll(){
         ScopeTable* cur = currentTable;
+        printf("\033[1;46m\n");
         while(cur != nullptr){
             cur->print();
             cur = cur->parent;
             if(cur != nullptr)cout<<endl;
         }
+        printf("\033[0m\n");
     }
     void printAll(ofstream &lout){
         ScopeTable* cur = currentTable;

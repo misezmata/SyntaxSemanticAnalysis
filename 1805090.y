@@ -66,6 +66,7 @@ void addParamsToScopeTable(){
 			errorr("Multiple parameters with same name!");
 		}
 	}
+	table->printAll();
 	paramList.clear();
 }
 
@@ -82,7 +83,7 @@ string getParamList(vector<SymbolInfo*> v){
 	string builder = "";
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
-		builder += v[i]->getType() + " " + v[i]->getName();
+		builder += v[i]->getVarType() + " " + v[i]->getName();
 		if(i != sz - 1) builder += ",";
 	}
 	return builder;
@@ -181,6 +182,12 @@ bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2){
 	return true;
 }
 
+string getIdVarType(string name){
+	SymbolInfo* si = table->lookUp(name);
+	if(si == nullptr) return "null";
+	return si->getVarType();
+}
+
 void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefined, vector<SymbolInfo*>* v){
 	SymbolInfo* found = table->lookUp(si->getName());
 	si->setSpec(2);
@@ -189,6 +196,7 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 	si->setParams(v);
 	if(found == nullptr){
 		table->insert(si);
+		table->printAll();
 		return;
 	}
 	if(found->getSpec() != 2){
@@ -212,14 +220,17 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 		}
 		table->remove(si->getName());
 		table->insert(si);
+		table->printAll();
 		return;
 	}
+	table->insert(si);
+	return;
 	// table->printAll();
 }
 
 void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
 	string s = "ID: "+si->getName(); 
-	errorr(s.c_str());
+	// errorr(s.c_str());
 	SymbolInfo* found = table->lookUp(si->getName());
 	//TODO onek kichu kora lagbe :( :) 
 }
@@ -253,10 +264,10 @@ string checkAndValidateID(string idName, string exp, string expType){
 		return found->getVarType();
 	}
 	int index;
-	errorr("LINE_249");
-	errorr(exp.c_str());
+	// errorr("LINE_249");
+	// errorr(exp.c_str());
 	sscanf(exp.c_str(), "%d", &index);
-	cout<<"\t\t\t: "<<index<<endl;
+	// cout<<"\t\t\t: "<<index<<endl;
 	if(index < 0) errorr("INDEX CANT BE NEGATIVE!");
 	if(index >= found->getSize()) errorr("INDEX OUT OF BOUND");
 	return found->getVarType();
@@ -265,10 +276,33 @@ string checkAndValidateID(string idName, string exp, string expType){
 void checkAndValidAssign(string a, string b){
 	normalize(a, b);
 	// warning((a+", "+b).c_str());
+	warning((a+' '+b).c_str());
 	if(a == "void") errorr("CANNOT ASSIGN TO VOID!");
 	if(b == "void") errorr("CANNOT ASSIGN VOID!");
 	if(a != b){
 		warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
+	}
+}
+
+string getReturnType(string a, string b){
+	warning((a+' '+b).c_str());
+	normalize(a, b);
+	if(a == b) return a;
+	if(a == "null" && b != "null") return b;
+	if(a != "null" && b == "null") return a;
+	warning("MULTIPLE RETURN STATEMENT WITH DIFFERENT RETURN TYPE!");
+	return a;
+}
+
+void chekAndValidateFunctionSignature(string a, string b){
+	if(b == "null") b = "void";
+	normalize(a, b);
+	if(a != "void" && b == "void"){
+		errorr("FUNCTION IS NOT VOID!");
+		return;
+	} 
+	if(a != b){
+		errorr("FUNCTION RETURN TYPE MISMATCHED!");
 	}
 }
 
@@ -290,7 +324,7 @@ void checkAndValidAssign(string a, string b){
 %type <sstring> type_specifier var_declaration func_declaration
 %type <pss> expression_statement factor variable expression logic_expression rel_expression simple_expression term unary_expression
 %type <vss> arguments argument_list
-%type <sstring> statement compound_statement statements func_definition unit program
+%type <pss> statement compound_statement statements func_definition unit program start
 // %left 
 // %right
 
@@ -298,8 +332,10 @@ void checkAndValidAssign(string a, string b){
 
 %%
 
-start :
-	| program {
+start : program {
+		print("start -> program");
+		$$ = $1;
+		cout<<*($$->first)<<endl;
 		// cout<<"eikhane ken ashe?"<<endl;
 		//write your code in this block in all the similar blocks below
 	}
@@ -307,7 +343,8 @@ start :
 
 program : program unit {
 		print("program -> program unit");
-		$$ = new string(*$1+"\n"+*$2);
+		string fst = (*($1->first)+"\n"+*($2->first));
+		$$ = createPSS(fst, "null");
 		// cout<<*$$<<endl;
 	}
 	| unit {
@@ -319,11 +356,11 @@ program : program unit {
 	
 unit : var_declaration {
 		print("unit -> var_declaration");
-		$$ = $1;
+		$$ = createPSS(*($1), "null");
 	}
 	| func_declaration {
 		print("unit -> func_declaration");
-		$$ = $1;
+		$$ = createPSS(*($1), "null");
 	} 
 	| func_definition {
 		print("unit -> func_definition");
@@ -348,16 +385,24 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, $4);
 		} compound_statement {
-		print("func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+		warning("func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement");
 		// insertFunctionIdToSymbolTable($2, *$1, true, $4);
-		$$ = new string(*$1 + " " + $2->getName() + "(" + getParamList(*$4) +")" + *$7);
-		// cout<<*$$<<endl;
+		warning((*($7->second)+", " + *($1)).c_str());
+		chekAndValidateFunctionSignature(*($1), *($7->second));
+		$$ = createPSS((*$1 + " " + $2->getName() + "(" + getParamList(*$4) +")" + *($7->first)), *($7->second));
+		string s = *($$->first); 
+		warning(s.c_str());
 	}
 	| type_specifier ID LPAREN RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, nullptr);
 		} compound_statement {
-		print("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
-		$$ = new string(*$1 + " " + $2->getName() + "()" + *$6);
+		// errorr("eikhane ekhane!");
+		warning("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
+		string fst = *$1 + " " + $2->getName() + "()" + *($6->first);
+		chekAndValidateFunctionSignature(*($1), *($6->second));
+		$$ = createPSS(fst, *($6->second));
+		warning((*($6->second)+", " + *($1)).c_str());
+
 		// cout<<*$$<<endl;
 	}
 	;				
@@ -383,13 +428,14 @@ parameter_list  : parameter_list COMMA type_specifier ID {
 
 compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} statements RCURL {
 		print("compound_statement -> LCURL statements RCURL");
-		$$ = new string("{\n"+*($3)+"\n}");
+		// $$ = new string("{\n"+*($3)+"\n}");
 		// cout<<*$$<<endl;
+		$$ = createPSS(("{\n"+*($3->first)+"\n}").c_str(), *($3->second));
 		table->exitScope();
 	}
 	| LCURL RCURL {
 		print("compound_statement -> LCURL RCURL");
-		$$ = new string("{}");
+		$$ = createPSS("{}", "void");
 	}
 	;
 
@@ -427,43 +473,45 @@ statements : statement {
 	}
 	| statements statement {
 		print("statements -> statements statement");
-		$$ = new string((*$1)+"\n"+(*$2));
+		string type = getReturnType(*($1->second), *($2->second));
+		$$ = createPSS(*($1->first)+"\n"+*($2->first), type);
 		// cout<<(*$$)<<endl;
 	}
 	;
 
 statement : var_declaration {
 		print("statement -> var_declaration");
-		$$ = $1;
+		$$ = createPSS(*$1, "null");
 	}
 	| expression_statement {
 		print("statement -> expression_statement");
-		$$ = $1->first;
+		$$ = createPSS(*($1->first), "null");
 	}
 	| compound_statement {
 		print("statement -> compound_statement");
+		// $$ = createPSS(*$1, "null");
 		$$ = $1;
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement {
-		$$ = new string("apatoto nothing!");
+		$$ = createPSS("apatoto nothing", "null");
 	}
 	| IF LPAREN expression RPAREN statement {
-		$$ = new string("apatoto nothing!");
+		$$ = createPSS("apatoto nothing", "null");
 	}
 	| IF LPAREN expression RPAREN statement ELSE statement {
-		$$ = new string("apatoto nothing!");
+		$$ = createPSS("apatoto nothing", "null");
 	}
 	| WHILE LPAREN expression RPAREN statement {
 		print("statement -> WHILE LPAREN expression RPAREN statement");
-		$$ = new string("while("+*($3->first)+")");
+		$$ = createPSS("while("+*($3->first)+")", "null");
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON {
 		print("statement -> PRINTLN LPAREN ID RPAREN SEMICOLON");
-		$$ = new string("println("+$3->getName()+");");
+		$$ = createPSS("println("+$3->getName()+");", "null");
 	}
 	| RETURN expression SEMICOLON {
 		print("statement -> RETURN expression SEMICOLON");
-		$$ = new string("return "+*($2->first)+";");
+		$$ = createPSS("return "+*($2->first)+";", *($2->second));
 	}
 ;
 
@@ -572,7 +620,7 @@ factor	: variable {
 	| ID LPAREN argument_list RPAREN { //TODO TODO
 		print("factor -> ID LPAREN argument_list RPAREN");
 		validateAndCreateFactor($1, *$3);
-		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", "AKASH");
+		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", getIdVarType($1->getName()));
 	}
 	| LPAREN expression RPAREN {
 		print("factor -> LPAREN expression RPAREN");

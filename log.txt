@@ -1,0 +1,64 @@
+LINE 1: type_specifier -> INT
+LINE 1: declaration_list -> ID
+LINE 1: declaration_list -> declaration_list COMMA ID
+LINE 1: declaration_list -> declaration_list COMMA ID
+LINE 1: var_declaration -> type_specifier declaration_list SEMICOLON
+Inserted in ScopeTable# 1 at position 1, 0
+[1;46m
+
+ScopeTable# 1
+0 --> 
+1 -->  < x, 1, 0 : ID int> 
+2 --> 
+3 --> 
+4 --> 
+5 --> 
+6 --> 
+[0m
+Inserted in ScopeTable# 1 at position 2, 0
+[1;46m
+
+ScopeTable# 1
+0 --> 
+1 -->  < x, 1, 0 : ID int> 
+2 -->  < y, 1, 0 : ID int> 
+3 --> 
+4 --> 
+5 --> 
+6 --> 
+[0m
+Inserted in ScopeTable# 1 at position 3, 0
+[1;46m
+
+ScopeTable# 1
+0 --> 
+1 -->  < x, 1, 0 : ID int> 
+2 -->  < y, 1, 0 : ID int> 
+3 -->  < z, 1, 0 : ID int> 
+4 --> 
+5 --> 
+6 --> 
+[0m
+LINE 1: unit -> var_declaration
+LINE 1: program -> unit
+LINE 1: type_specifier -> FLOAT
+LINE 1: declaration_list -> ID
+LINE 1: var_declaration -> type_specifier declaration_list SEMICOLON
+Inserted in ScopeTable# 1 at position 6, 0
+[1;46m
+
+ScopeTable# 1
+0 --> 
+1 -->  < x, 1, 0 : ID int> 
+2 -->  < y, 1, 0 : ID int> 
+3 -->  < z, 1, 0 : ID int> 
+4 --> 
+5 --> 
+6 -->  < a, 1, 0 : ID float> 
+[0m
+LINE 1: unit -> var_declaration
+LINE 1: program -> program unit
+LINE 3: type_specifier -> INT
+LINE 3: type_specifier -> INT
+LINE 3: parameter_list -> type_specifier
+ < , 1, 0 : int int> 
