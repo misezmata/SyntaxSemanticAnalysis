@@ -26,15 +26,12 @@ void errorr(const char *s){
 	printf("\033[1;31mERROR(at line: %d):  %s \033[0m\n",yylineno, s);
 }
 
-void debug(char *s){
-	printf("\033[1;43m\t\t:  %s \033[0m\n",yylineno, s);
-}
-void debug(string s){
-	printf("\033[1;43m\t\t:  %s \033[0m\n",yylineno, s);
+void warning(const char *s){
+	printf("\033[1;33mWARNING(at line: %d):  %s \033[0m\n",yylineno, s);
 }
 
 void print(string s){
-	// cout<<"LINE "<<yylineno<<": "<<s<<endl;
+	cout<<"LINE "<<yylineno<<": "<<s<<endl;
 }
 
 void printVVector(vector<SymbolInfo*> v){
@@ -101,10 +98,20 @@ string* createFunctionDeclaration(string specifier, string funName, vector<Symbo
 	return new string(builder);
 }
 
+void normalize(string &a, string &b){
+	if(a == "CONST_INT") a = "int";
+	if(b == "CONST_INT") b = "int";
+	if(a == "CONST_FLOAT") a = "float";
+	if(b == "CONST_FLOAT") b = "float";
+	if(a == "VOID") a = "void";
+	if(b == "VOID") b = "void";
+}
+
 string getHigherType(string a, string b){
+	normalize(a, b);
 	if(a == b) return a;
-	return "CONST_FLOAT";
-	// if(a == "CONST_INT")
+	if(a == "VOID" || b == "VOID") return "VOID";
+	return "float";
 }
 
 void printPSS(pair<string*, string*> pss){
@@ -158,10 +165,6 @@ void insertToSymbolTable(string type, vector<SymbolInfo*> v){
 		}
 		table->printAll();
 	}
-}
-
-void printSomething(){
-	cout<<"printing!"<<endl;
 }
 
 bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2){
@@ -244,14 +247,30 @@ string checkAndValidateID(string idName, string exp, string expType){
 		errorr("INDEX SHOULD BE INTEGER!");
 		return found->getVarType();
 	}
-	if(expType == "int") return found->getVarType();
+	if(expType == "int") {
+		errorr("inside");
+		errorr(exp.c_str());
+		return found->getVarType();
+	}
 	int index;
-	sscanf(exp, "%d", &index);
+	errorr("LINE_249");
+	errorr(exp.c_str());
+	sscanf(exp.c_str(), "%d", &index);
+	cout<<"\t\t\t: "<<index<<endl;
 	if(index < 0) errorr("INDEX CANT BE NEGATIVE!");
 	if(index >= found->getSize()) errorr("INDEX OUT OF BOUND");
 	return found->getVarType();
 }
 
+void checkAndValidAssign(string a, string b){
+	normalize(a, b);
+	// warning((a+", "+b).c_str());
+	if(a == "void") errorr("CANNOT ASSIGN TO VOID!");
+	if(b == "void") errorr("CANNOT ASSIGN VOID!");
+	if(a != b){
+		warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
+	}
+}
 
 
 %}
@@ -448,7 +467,7 @@ statement : var_declaration {
 	}
 ;
 
-expression_statement 	: SEMICOLON	{
+expression_statement : SEMICOLON	{
 		$$ = createPSS(";", "VOID");
 	}		
 	| expression SEMICOLON {
@@ -459,18 +478,14 @@ expression_statement 	: SEMICOLON	{
 
 variable : ID 	{
 		print("variable -> ID");
-		errorr("EKHANE ASHE");
 		string type = checkAndValidateID($1->getName(), "0", "NOT_ARRAY");
 		$$ = createPSS ($1->getName(), type);
-		errorr("ber hoy!");
 	}
 	| ID LTHIRD expression RTHIRD {
-		errorr("array te!");
 		print("variable -> ID LTHIRD expression RTHIRD");
-		checkAndValidateID($1->getName(), "0", *($3->second));
-		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", $1->getType());
+		string type = checkAndValidateID($1->getName(), *($3->first), *($3->second));
+		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", type);
 		printPSS(*$$);
-		errorr("ber hoy!");
 	}
 ;
 
@@ -483,6 +498,7 @@ expression : logic_expression {
 		// cout<<"\t\t\t\teikhane keno ashe?"<<endl;
 		//TODO eikhane onek kahini kora lagbe 
 		print("expression -> variable ASSIGNOP logic_expression");
+		checkAndValidAssign(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + " = " + *($3->first), *($1->second));
 		printPSS(*$$);
 	} 	
@@ -494,7 +510,7 @@ logic_expression : rel_expression {
 	}
 	| rel_expression LOGICOP rel_expression {
 		print("rel_expression LOGICOP rel_expression");
-		$$ = createPSS (*($1->first) +  " " + $2->getName() + " " + *($3->first), "CONST_INT");
+		$$ = createPSS (*($1->first) +  " " + $2->getName() + " " + *($3->first), "int");
 		printPSS(*$$);
 	} 	
 ;
@@ -502,10 +518,11 @@ logic_expression : rel_expression {
 rel_expression	: simple_expression {
 		print("rel_expression -> simple_expression");
 		$$ = $1;
+		printPSS(*$$);
 	}
 	| simple_expression RELOP simple_expression	{
 		print("rel_expression -> simple_expression RELOP simple_expression");
-		$$ = createPSS (*($1->first) + " " + $2->getName() + " " + *($3->first), "CONST_INT");
+		$$ = createPSS (*($1->first) + " " + $2->getName() + " " + *($3->first), "int");
 		printPSS(*$$);
 	}
 ;
@@ -515,16 +532,15 @@ simple_expression : term {
 		$$ = $1;
 	}
 	| simple_expression ADDOP term {
-		print("simple_expression -> term");
+		print("simple_expression -> simple_expression ADDOP term");
 		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), getHigherType(*($1->second), *($3->second)));
-		printPSS(*$$);
+		// printPSS(*$$);
 	}
 ;
 
 term :	unary_expression {
 		print("term -> unary_expression");
 		$$ = $1;
-		printPSS(*$$);
 	}
 	| term MULOP unary_expression {
 		print("term -> MULOP unary_expression");
@@ -535,13 +551,13 @@ term :	unary_expression {
 
 unary_expression : ADDOP unary_expression {
 		print("unary_expression -> ADDOP unary_expression");
-		$$ = createPSS ($1->getName() + " " +(*($2->first)), *($2->second));
+		$$ = createPSS ($1->getName() + "" +(*($2->first)), *($2->second));
 		printPSS(*$$);
 	}
 	| NOT unary_expression {
 		print("unary_expression -> NOT unary_expression");
-		$$ = createPSS ("! "+(*($2->first)),*($2->second));
-		printPSS(*$$);
+		$$ = createPSS ("! "+(*($2->first)),"int");
+		// printPSS(*$$);
 	}
 	| factor {
 		print("unary_expression -> factor");
@@ -553,7 +569,7 @@ factor	: variable {
 		print("factor -> variable");
 		$$ = $1;
 	}
-	| ID LPAREN argument_list RPAREN {
+	| ID LPAREN argument_list RPAREN { //TODO TODO
 		print("factor -> ID LPAREN argument_list RPAREN");
 		validateAndCreateFactor($1, *$3);
 		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", "AKASH");
@@ -561,7 +577,7 @@ factor	: variable {
 	| LPAREN expression RPAREN {
 		print("factor -> LPAREN expression RPAREN");
 		$$ = createPSS ("("+*($2->first)+")",*($2->second));
-		printPSS(*$$);
+		// printPSS(*$$);
 	}
 	| CONST_INT {
 		print("factor -> CONST_INT");

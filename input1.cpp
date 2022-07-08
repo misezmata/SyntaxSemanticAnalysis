@@ -1,11 +1,6 @@
 int main(){
-    int a, ara[10];
-    c;
-    c[20];
-    a;
-    a[1];
-    a[0];
-    ara;
-    ara[0];
-    ara[10];
+    float a[10];
+    a[2] = 10*10+1.2;
+    a[3] = ;
+    main;
 }
