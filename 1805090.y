@@ -34,7 +34,7 @@ void debug(string s){
 }
 
 void print(string s){
-	cout<<"LINE "<<yylineno<<": "<<s<<endl;
+	// cout<<"LINE "<<yylineno<<": "<<s<<endl;
 }
 
 void printVVector(vector<SymbolInfo*> v){
@@ -156,7 +156,7 @@ void insertToSymbolTable(string type, vector<SymbolInfo*> v){
 		}else{
 			errorr("ID ALREADY EXISTS");
 		}
-		// table->printAll();
+		table->printAll();
 	}
 }
 
@@ -189,7 +189,7 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 		return;
 	}
 	if(found->getSpec() != 2){
-		errorr("VARIBAL AND FUNCTION NAME COLLISION!");
+		errorr("VARIABLE AND FUNCTION NAME COLLISION!");
 		return;
 	}
 	if(found->getSize()){
@@ -214,6 +214,31 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 	// table->printAll();
 }
 
+void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
+	string s = "ID: "+si->getName(); 
+	errorr(s.c_str());
+	SymbolInfo* found = table->lookUp(si->getName());
+	//TODO onek kichu kora lagbe :( :) 
+}
+
+string checkAndValidateID(string idName, string exp, string expType){
+	SymbolInfo* found = table->lookUp(idName);
+	if(found == nullptr){
+		errorr("NO SUCH ID FOUND!");
+		return "VOID";
+	}
+	if(found->getSpec() == 2){
+		errorr("NOT A VARIABLE!");
+		return found->getVarType();
+	}
+	if(found->getSize() == 0){
+		if(expType == "NOT_ARRAY") return found->getVarType();
+		errorr("TRYING TO ACCESS VARIABLE (NOT AN ARRAY) WITH INDEX!");
+		return found->getVarType();
+	}
+	
+	return "VOID";
+}
 
 
 
@@ -422,12 +447,18 @@ expression_statement 	: SEMICOLON	{
 
 variable : ID 	{
 		print("variable -> ID");
-		$$ = createPSS ($1->getName(), $1->getType());
+		errorr("EKHANE ASHE");
+		string type = checkAndValidateID($1->getName(), "0", "NOT_ARRAY");
+		$$ = createPSS ($1->getName(), type);
+		errorr("ber hoy!");
 	}
 	| ID LTHIRD expression RTHIRD {
+		errorr("array te!");
 		print("variable -> ID LTHIRD expression RTHIRD");
+		checkAndValidateID($1->getName(), "0", *($3->second));
 		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", $1->getType());
 		printPSS(*$$);
+		errorr("ber hoy!");
 	}
 ;
 
@@ -512,6 +543,7 @@ factor	: variable {
 	}
 	| ID LPAREN argument_list RPAREN {
 		print("factor -> ID LPAREN argument_list RPAREN");
+		validateAndCreateFactor($1, *$3);
 		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", "AKASH");
 	}
 	| LPAREN expression RPAREN {

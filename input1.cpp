@@ -1,24 +1,11 @@
-int main(int a, int b);
-float a, b;
-
-int main1();
-int main1();
-
-int main(int e, float f){
-    int c, d;
-    {
-        int g;
-        int g;
-        float h;
-    }
-    int g, i;
-    int ara[10];
-    float cra[20];
-}
-int main1(){
-
-}
-
-void main1(){
-
+int main(){
+    int a, ara[10];
+    c;
+    c[20];
+    a;
+    a[1];
+    a[0];
+    ara;
+    ara[0];
+    ara[10];
 }
