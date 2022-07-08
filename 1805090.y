@@ -236,8 +236,20 @@ string checkAndValidateID(string idName, string exp, string expType){
 		errorr("TRYING TO ACCESS VARIABLE (NOT AN ARRAY) WITH INDEX!");
 		return found->getVarType();
 	}
-	
-	return "VOID";
+	if(expType == "NOT_ARRAY"){
+		errorr("TRYING TO ACCESS ARRAY WITHOUT INDEXING");
+		return found->getVarType();
+	}
+	if(expType != "CONST_INT" && expType != "int") {
+		errorr("INDEX SHOULD BE INTEGER!");
+		return found->getVarType();
+	}
+	if(expType == "int") return found->getVarType();
+	int index;
+	sscanf(exp, "%d", &index);
+	if(index < 0) errorr("INDEX CANT BE NEGATIVE!");
+	if(index >= found->getSize()) errorr("INDEX OUT OF BOUND");
+	return found->getVarType();
 }
 
 
