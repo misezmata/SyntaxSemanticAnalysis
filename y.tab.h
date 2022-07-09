@@ -91,7 +91,9 @@ extern int yydebug;
     RELOP = 292,                   /* RELOP  */
     ASSIGNOP = 293,                /* ASSIGNOP  */
     LOGICOP = 294,                 /* LOGICOP  */
-    STRING = 295                   /* STRING  */
+    STRING = 295,                  /* STRING  */
+    UNCHAR = 296,                  /* UNCHAR  */
+    LOWER_THAN_ELSE = 297          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -138,12 +140,14 @@ extern int yydebug;
 #define ASSIGNOP 293
 #define LOGICOP 294
 #define STRING 295
+#define UNCHAR 296
+#define LOWER_THAN_ELSE 297
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 312 "1805090.y"
+#line 366 "1805090.y"
 
 	int iint; 
 	double ddouble; 
@@ -154,7 +158,7 @@ union YYSTYPE
 	pair<string*, string*>* pss;
 	vector<pair<string*, string*>*>* vss;
 
-#line 158 "y.tab.h"
+#line 162 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

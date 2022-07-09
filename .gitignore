@@ -6,3 +6,5 @@
 ./y.tab.h
 ./lex.yy.c
 ./mine
+./*.txt
+*.txt

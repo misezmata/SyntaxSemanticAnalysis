@@ -4,7 +4,6 @@
 #include<cstring>
 #include<cmath>
 #include "1805090_SymbolTable.h"
-// #define YYSTYPE SymbolInfo*
 
 using namespace std;
 
@@ -15,7 +14,7 @@ extern int yylineno;
 SymbolTable *table;
 string builder;
 vector<pair<string, string> > paramList;
-
+ofstream errout;
 
 void yyerror(char *s)
 {
@@ -23,7 +22,8 @@ void yyerror(char *s)
 }
 
 void errorr(const char *s){
-	printf("\033[1;31mERROR(at line: %d):  %s \033[0m\n",yylineno, s);
+	errout<<"Erro at line "<<yylineno<<": "<<s<<"\n"<<endl;
+	printf("\033[1;31mError at line: %d:  %s \033[0m\n",yylineno, s);
 }
 
 void warning(const char *s){
@@ -63,7 +63,7 @@ void addParamsToScopeTable(){
 		if(table->insert(si)){
 			
 		}else{
-			errorr("Multiple parameters with same name!");
+			errorr(("Multiple declaration of "+si->getName()+" in parameter").c_str());
 		}
 	}
 	table->printAll();
@@ -111,7 +111,10 @@ void normalize(string &a, string &b){
 string getHigherType(string a, string b){
 	normalize(a, b);
 	if(a == b) return a;
-	if(a == "VOID" || b == "VOID") return "VOID";
+	if(a == "void" || b == "void") {
+		// errorr("Void function used in expression");
+		return "void";
+	}
 	return "float";
 }
 
@@ -156,28 +159,37 @@ string getStringFromArgumentList(vector<pair<string*, string*>*> vpss){
 }
 
 void insertToSymbolTable(string type, vector<SymbolInfo*> v){
+	if(type == "void" || type == "VOID"){
+		errorr("Variable type cannot be void");
+	}
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
 		v[i]->setVarType(type);
 		if(table->insert(v[i])){
 
 		}else{
-			errorr("ID ALREADY EXISTS");
+			errorr(("Multiple declaration of "+v[i]->getName()).c_str());
 		}
 		table->printAll();
 	}
 }
 
-bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2){
+bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2, string funcName){
 	if(v1 == nullptr && v2 == nullptr) {
 		return true;
 	}
 	if(v1 == nullptr) return false;
 	if(v2 == nullptr) return false;
-	if(v1->size() != v2->size()) return false;
+	if(v1->size() != v2->size()) {
+		errorr(("Total number of parameters mismatch with declaration in function "+funcName).c_str());
+		return false;
+	}
 	int sz = v1->size();
 	for(int i=0; i<sz; i++){
-		if((*v1)[i]->getVarType() != (*v2)[i]->getVarType()) return false;
+		if((*v1)[i]->getVarType() != (*v2)[i]->getVarType()) {
+			errorr(((i+1)+"th parameter's type specifier mismatched in function definition of "+funcName).c_str());
+			return false;
+		}
 	}
 	return true;
 }
@@ -200,22 +212,23 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 		return;
 	}
 	if(found->getSpec() != 2){
-		errorr("VARIABLE AND FUNCTION NAME COLLISION!");
+		errorr(("Multiple declaration of "+si->getName()).c_str());
 		return;
 	}
 	if(found->getSize()){
-		errorr("FUNCTION ALREADY DEFINED!");
+		errorr(("Multiple definition of "+si->getName()).c_str());
 		return;
 	}
 	if(!isDefined){
-		errorr("MULTIPLE DECLARATION OF SAME FUNCTION");
+		errorr(("Multiple declaration of "+si->getName()).c_str());
 	}else {
 		if(found->getVarType() != si->getVarType()){
-			errorr("function declaration and definition RETURN TYPE mismatched!");
+			errorr(("Return type mismatch with function declaration in function "+si->getName()).c_str());
 			return;
 		}
-		if(!matchParameterSignature(si->getParams(), found->getParams())){
-			errorr("Declaration and Definition parameter signature mismatched!");
+		if(!matchParameterSignature(si->getParams(), found->getParams(), si->getName())){
+			// errorr("Declaration and Definition parameter signature mismatched!");
+			// errorr((si->getName()).c_str());
 			return;
 		}
 		table->remove(si->getName());
@@ -229,16 +242,36 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 }
 
 void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
-	string s = "ID: "+si->getName(); 
-	// errorr(s.c_str());
 	SymbolInfo* found = table->lookUp(si->getName());
-	//TODO onek kichu kora lagbe :( :) 
+	if(found == nullptr){
+		errorr(("Undeclared function "+si->getName()).c_str());
+	}else if(found->getSpec() != 2){
+		errorr((found->getName() + " is not a function").c_str());
+	}else if(found->getParams()->size() != v.size()){
+		cout<<found->getParams()->size()<<endl;
+		cout<<v.size()<<endl;
+		errorr(("Total number of arguments mismatch with declaration in function "+found->getName()).c_str());
+	}else if(found->getVarType() == "void" || found->getVarType() == "VOID"){
+		// errorr("Void function used in expression");
+	}else{
+		int sz = v.size();
+		vector<SymbolInfo*> v2= *(found->getParams());
+		for(int i=0; i<sz; i++){
+			string t1 = *(v[i]->second);
+			string t2 = v2[i]->getVarType();
+			normalize(t1, t2);
+			if(t1 != t2) {
+				string er = to_string(i+1)+"th argument mismatch in function "+found->getName();
+				errorr(er.c_str());
+			}
+		}
+	}
 }
 
 string checkAndValidateID(string idName, string exp, string expType){
 	SymbolInfo* found = table->lookUp(idName);
 	if(found == nullptr){
-		errorr("NO SUCH ID FOUND!");
+		errorr(("Undeclared variable "+idName).c_str());
 		return "VOID";
 	}
 	if(found->getSpec() == 2){
@@ -247,20 +280,20 @@ string checkAndValidateID(string idName, string exp, string expType){
 	}
 	if(found->getSize() == 0){
 		if(expType == "NOT_ARRAY") return found->getVarType();
-		errorr("TRYING TO ACCESS VARIABLE (NOT AN ARRAY) WITH INDEX!");
+		errorr((idName+" not an array").c_str());
 		return found->getVarType();
 	}
 	if(expType == "NOT_ARRAY"){
-		errorr("TRYING TO ACCESS ARRAY WITHOUT INDEXING");
+		errorr(("Type mismatch, "+idName+" is an array").c_str());
 		return found->getVarType();
 	}
 	if(expType != "CONST_INT" && expType != "int") {
-		errorr("INDEX SHOULD BE INTEGER!");
+		errorr("Expression inside third brackets not an integer");
 		return found->getVarType();
 	}
 	if(expType == "int") {
-		errorr("inside");
-		errorr(exp.c_str());
+		// errorr("inside");
+		// errorr(exp.c_str());
 		return found->getVarType();
 	}
 	int index;
@@ -268,8 +301,8 @@ string checkAndValidateID(string idName, string exp, string expType){
 	// errorr(exp.c_str());
 	sscanf(exp.c_str(), "%d", &index);
 	// cout<<"\t\t\t: "<<index<<endl;
-	if(index < 0) errorr("INDEX CANT BE NEGATIVE!");
-	if(index >= found->getSize()) errorr("INDEX OUT OF BOUND");
+	if(index < 0) errorr("Expression inside third brackets cannot be negative");
+	if(index >= found->getSize()) errorr("array index out of bound");
 	return found->getVarType();
 }
 
@@ -278,9 +311,13 @@ void checkAndValidAssign(string a, string b){
 	// warning((a+", "+b).c_str());
 	warning((a+' '+b).c_str());
 	if(a == "void") errorr("CANNOT ASSIGN TO VOID!");
-	if(b == "void") errorr("CANNOT ASSIGN VOID!");
+	if(b == "void"){
+		errorr("Void function used in expression");
+	}
 	if(a != b){
-		warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
+		// warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
+		if(a == "float" && b == "int") return;
+		errorr("Type Mismatch");
 	}
 }
 
@@ -301,9 +338,26 @@ void chekAndValidateFunctionSignature(string a, string b){
 		errorr("FUNCTION IS NOT VOID!");
 		return;
 	} 
+	if(a == "void" && b!= "void"){
+		errorr("Type mismatch, function is void");
+	}
 	if(a != b){
+		if(a == "float" && b == "int") return;
 		errorr("FUNCTION RETURN TYPE MISMATCHED!");
 	}
+}
+
+void checkModulusOperator(string t1, string op, string t2, string s2){
+	if(op != "%") return;
+	normalize(t1, t2);
+	if(t1 != "int" || t2 != "int") errorr("Non-Integer operand on modulus operator");
+	if(s2 == "0") errorr("Modulus by Zero");
+}
+
+void checkLogicAndRelExpression(string a, string b){
+	normalize(a, b);
+	if(a == "void") errorr("void expression in logical or relational operation");
+	else if(b == "void") errorr("void expression in logical or relational operation");
 }
 
 
@@ -319,7 +373,7 @@ void chekAndValidateFunctionSignature(string a, string b){
 	pair<string*, string*>* pss;
 	vector<pair<string*, string*>*>* vss;}
 %token INCOP DECOP PRINTLN IF ELSE FOR WHILE DO BREAK INT CHAR FLOAT DOUBLE VOID RETURN SWITCH CASE DEFAULT CONTINUE NOT LPAREN RPAREN LCURL RCURL LTHIRD RTHIRD COMMA SEMICOLON
-%token <si> CONST_INT CONST_FLOAT CONST_CHAR ID ADDOP MULOP RELOP ASSIGNOP LOGICOP STRING
+%token <si> CONST_INT CONST_FLOAT CONST_CHAR ID ADDOP MULOP RELOP ASSIGNOP LOGICOP STRING UNCHAR
 %type <vvector> declaration_list parameter_list
 %type <sstring> type_specifier var_declaration func_declaration
 %type <pss> expression_statement factor variable expression logic_expression rel_expression simple_expression term unary_expression
@@ -328,7 +382,8 @@ void chekAndValidateFunctionSignature(string a, string b){
 // %left 
 // %right
 
-// %nonassoc 
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 
 %%
 
@@ -376,7 +431,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON {
 		print("func_declaration -> type_specifier ID LPAREN RPAREN SEMICOLON");
-		insertFunctionIdToSymbolTable($2, *$1, false, nullptr);
+		insertFunctionIdToSymbolTable($2, *$1, false, new vector<SymbolInfo*>);
 		$$ = new string((*$1) + " " + ($2->getName()) + "();");
 		// cout<<(*$$)<<endl;
 	}
@@ -394,7 +449,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		warning(s.c_str());
 	}
 	| type_specifier ID LPAREN RPAREN {
-			insertFunctionIdToSymbolTable($2, *$1, true, nullptr);
+			insertFunctionIdToSymbolTable($2, *$1, true, new vector<SymbolInfo*>);
 		} compound_statement {
 		// errorr("eikhane ekhane!");
 		warning("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
@@ -406,7 +461,6 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		// cout<<*$$<<endl;
 	}
 	;				
-
 
 parameter_list  : parameter_list COMMA type_specifier ID {
 		print("parameter_list -> parameter_list COMMA type_specifier ID");
@@ -489,25 +543,41 @@ statement : var_declaration {
 	}
 	| compound_statement {
 		print("statement -> compound_statement");
-		// $$ = createPSS(*$1, "null");
+		// $$ = createPSS(*$1, *($1-.second));
 		$$ = $1;
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement {
-		$$ = createPSS("apatoto nothing", "null");
+		string s = "for (" + *($3->first) + " " + *($4->first) + " " + *($5->first) + " ) " + *($7->first); 
+		$$ = createPSS(s, *($7->second));
 	}
-	| IF LPAREN expression RPAREN statement {
-		$$ = createPSS("apatoto nothing", "null");
+	| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE {
+		string s = "if (" + *($3->first) +") " + *($5->first);
+		$$ = createPSS(s, *($5->second));
 	}
 	| IF LPAREN expression RPAREN statement ELSE statement {
-		$$ = createPSS("apatoto nothing", "null");
+		string s = "if ("+*($3->first)+") "+*($5->first) + "\nelse "+ *($7->first);
+		string t1 = *($5->second);
+		string t2 = *($7->second);
+		normalize(t1, t2);
+		string type = t1;
+		if(t1 != t2){
+			errorr("Return type mismatched in if statement else statement");
+			if(t1 == "void") type = t2;
+			if(t2 == "void") type = t1;
+		}
+		$$ = createPSS(s, type);
 	}
 	| WHILE LPAREN expression RPAREN statement {
 		print("statement -> WHILE LPAREN expression RPAREN statement");
 		$$ = createPSS("while("+*($3->first)+")", "null");
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON {
+		if(table->lookUp($3->getName()) == nullptr){
+			string s = "Undeclared variable "+$3->getName();
+			errorr(s.c_str());
+		}
 		print("statement -> PRINTLN LPAREN ID RPAREN SEMICOLON");
-		$$ = createPSS("println("+$3->getName()+");", "null");
+		$$ = createPSS("printf("+$3->getName()+");", "null");
 	}
 	| RETURN expression SEMICOLON {
 		print("statement -> RETURN expression SEMICOLON");
@@ -558,6 +628,7 @@ logic_expression : rel_expression {
 	}
 	| rel_expression LOGICOP rel_expression {
 		print("rel_expression LOGICOP rel_expression");
+		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) +  " " + $2->getName() + " " + *($3->first), "int");
 		printPSS(*$$);
 	} 	
@@ -570,6 +641,7 @@ rel_expression	: simple_expression {
 	}
 	| simple_expression RELOP simple_expression	{
 		print("rel_expression -> simple_expression RELOP simple_expression");
+		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + " " + $2->getName() + " " + *($3->first), "int");
 		printPSS(*$$);
 	}
@@ -592,7 +664,9 @@ term :	unary_expression {
 	}
 	| term MULOP unary_expression {
 		print("term -> MULOP unary_expression");
-		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), getHigherType(*($1->second), *($3->second)));
+		checkModulusOperator(*($1->second), $2->getName(), *($3->second), *($3->first));
+		string type = $2->getName() == "%" ? "int" : getHigherType(*($1->second), *($3->second));
+		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), type);
 		printPSS(*$$);
 	}
 ;
@@ -651,6 +725,9 @@ argument_list : arguments {
 		print("arguments_list -> arguments");
 		$$ = $1;
 	}
+	| {
+		$$ = new vector<pair<string*, string*>*>;
+	}
 ;
 
 arguments : arguments COMMA logic_expression {
@@ -663,11 +740,17 @@ arguments : arguments COMMA logic_expression {
 	}
 ;
 
+unrecognized_character : UNCHAR {
+		string s = "Unrecognized character " + $1->getName();
+		errorr(s.c_str());
+	}
+;
 
 %%
 int main(int argc,char *argv[])
 {
 	table = new SymbolTable(7);
+	errout.open("error.txt");
 	yyparse();
 	return 0;
 }

@@ -142,7 +142,7 @@ NEWLINE \n
 "case" {return CASE;}
 "default" {return DEFAULT;}
 "continue" {return CONTINUE;}
-"println" {return PRINTLN;}
+"printf" {return PRINTLN;}
 
 {DIGIT}+ {
 	SymbolInfo* si = new SymbolInfo(yytext, "CONST_INT");
@@ -331,6 +331,9 @@ NEWLINE \n
 	// cout<<"eikhane: "<<yytext<<endl;
 	lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
 	error_count++;
+	SymbolInfo* si = new SymbolInfo(yytext, "UNCHAR");
+	yylval.si = si;
+	return UNCHAR;
 }
 %%
 
