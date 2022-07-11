@@ -499,6 +499,27 @@ var_declaration : type_specifier declaration_list SEMICOLON {
 		insertToSymbolTable(*$1, *$2);
 		// cout<<(*$$)<<endl;
 	}
+	| error declaration_list SEMICOLON {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		$$ = createVarDeclaration("void", *$2);
+		insertToSymbolTable("void", *$2);
+		errorr("type_specifier not specified");
+		// cout<<(*$$)<<endl;
+	}
+	| error declaration_list error {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		$$ = createVarDeclaration("void", *$2);
+		insertToSymbolTable("void", *$2);
+		errorr("type_specifier not specified, missing semicolon");
+		// cout<<(*$$)<<endl;
+	}
+	| type_specifier declaration_list error {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		$$ = createVarDeclaration(*$1, *$2);
+		insertToSymbolTable(*$1, *$2);
+		errorr("missing semicolon");
+		// cout<<(*$$)<<endl;
+	}
 	;
 
 type_specifier	: INT {print("type_specifier -> INT"); $$ = new string("int");}
@@ -737,12 +758,6 @@ arguments : arguments COMMA logic_expression {
 	| logic_expression {
 		print("arguments -> logic_expression");
 		$$ = addLogicalExpression(new vector<pair<string*, string*>*>, $1);
-	}
-;
-
-unrecognized_character : UNCHAR {
-		string s = "Unrecognized character " + $1->getName();
-		errorr(s.c_str());
 	}
 ;
 

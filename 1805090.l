@@ -23,7 +23,7 @@ int startedAt;
 extern YYSTYPE yylval;
 // extern SymbolTable *table;
 // void yyerror(char *);
-
+extern void errorr(const char *s);
 
 void insertIntoSymbolTable(string name, string type){
 	// cout<<"type: <"<<type<<">\tname: <"<<name<<">"<<endl;
@@ -208,36 +208,57 @@ NEWLINE \n
 }
 
 {DIGIT}*\.{DIGIT}*(\.{DIGIT}*)+ {
-	errorAtLine();
-	lout<<"Too many decimal points "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Too many decimal points "<<yytext<<endl;
+	string s = string("Too many decimal points ") + yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 {DIGIT}*(\.)?[Ee]-?{DIGIT}*(\.{DIGIT}*)+ {
-	errorAtLine();
-	lout<<"Ill formed number "<<yytext<<endl;
+	// lout<<"Ill formed number "<<yytext<<endl;
+	string s = string("Ill formed numeber ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 {DIGIT}*[\.]?{DIGIT}+([Ee](-)?{DIGIT}+)?[A-Za-z_][A-Za-z_0-9]* {
-	errorAtLine();
-	lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	string s = string("Invalid prefix on ID or invalid suffix on Number ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 {DIGIT}*[\.][A-Za-z_][A-Za-z_0-9]* {
 	errorAtLine();
-	lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	// lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	string s = string("Invalid prefix on ID or invalid suffix on Number ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 "''" {
-	errorAtLine();
-	lout<<"Empty character constant error ''"<<endl;
+	// errorAtLine();
+	// lout<<"Empty character constant error ''"<<endl;
+	// string s = "Empty character constant error ''";
+	// errorr(s.c_str());
 }
 '\\?..+' {
-	errorAtLine();
-	lout<<"Multi character constant error "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Multi character constant error "<<yytext<<endl;
 }
 '\r?\n {
-	errorAtLine(yylineno - 1);
-	lout<<"Unterminated character "<<yytext;
+	// errorAtLine(yylineno - 1);
+	// lout<<"Unterminated character "<<yytext;
 }
 '.[^'\n]+ {
-	errorAtLine();
-	lout<<"Unterminated character "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Unterminated character "<<yytext<<endl;
 }
 \" {
 	BEGIN STRING;
@@ -262,13 +283,13 @@ NEWLINE \n
 }
 
 <STRING>\r?\n {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	BEGIN INITIAL;
 }
 <STRING>\\ {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	BEGIN INITIAL;
 }
 <STRING>\" {
@@ -281,8 +302,8 @@ NEWLINE \n
 	string_yytext += yytext;
 }
 <STRING><<EOF>> {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	return 0;
 }
 
@@ -298,7 +319,7 @@ NEWLINE \n
 }
 <SINGLE_COMMENT>\r?\n {
 	// cout<<"built comment: "<<string_builder<<endl;
-	lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
+	// lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
 	BEGIN INITIAL;
 }
 
@@ -310,64 +331,26 @@ NEWLINE \n
 <MULTI_COMMENT>"*/" {
 	string_builder += yytext;
 	// cout<<"built comment: "<<string_builder<<endl;
-	lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
+	// lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
 	BEGIN INITIAL;
 }
 <MULTI_COMMENT>. {
 	string_builder += yytext;
 }
 <MULTI_COMMENT><<EOF>> {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated Comment "<<string_yytext<<endl;
 	return 0;
 }
 
-			
 <<EOF>> {
 	// cout<<"end of file"<<endl;
 	return 0;
 }
 [.] {
 	// cout<<"eikhane: "<<yytext<<endl;
-	lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
+	// lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
 	error_count++;
-	SymbolInfo* si = new SymbolInfo(yytext, "UNCHAR");
-	yylval.si = si;
-	return UNCHAR;
+	errorr("Unrecognized character");
 }
 %%
-
-// int main(int argc,char *argv[]){
-	
-// 	if(argc!=2){
-// 		printf("Please provide input file name and try again\n");
-// 		return 0;
-// 	}
-// 	char ara[100];
-// 	strcpy(ara, argv[1]);
-// 	FILE *fin=fopen(argv[1],"r");
-// 	if(fin==NULL){
-// 		printf("Cannot open specified file\n");
-// 		return 0;
-// 	}
-// 	// logout= fopen(strcat(argv[1], "_log.txt"),"w");
-// 	// tokenout= fopen(strcat(ara, "_token.txt"),"w");
-// 	lout.open(strcat(argv[1], "_log.txt"));
-// 	tout.open(strcat(ara, "_token.txt"));
-// 	// st = new SymbolTable(7);
-// 	yyin= fin;
-// 	yylineno = 1;
-// 	yylex();
-
-// 	lout<<"Total lines: "<<yylineno<<endl;
-// 	lout<<"Total errors: "<<error_count<<endl;
-
-
-// 	fclose(yyin);
-// 	// delete st;
-// 	lout.close();
-// 	tout.close();
-// 	// fclose(tokenout);
-// 	// fclose(logout);
-// 	return 0;
-// }

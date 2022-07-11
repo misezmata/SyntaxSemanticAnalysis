@@ -995,18 +995,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  11
+#define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   143
+#define YYLAST   162
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  43
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  27
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  67
+#define YYNRULES  70
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  121
+#define YYNSTATES  126
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   297
@@ -1061,11 +1061,12 @@ static const yytype_int16 yyrline[] =
 {
        0,   390,   390,   399,   405,   412,   416,   420,   426,   432,
      440,   440,   451,   451,   465,   469,   473,   477,   483,   483,
-     490,   496,   504,   505,   506,   509,   512,   515,   518,   523,
-     528,   536,   540,   544,   549,   553,   557,   570,   574,   582,
-     588,   591,   597,   602,   610,   615,   625,   629,   637,   642,
-     650,   654,   661,   665,   674,   679,   684,   690,   694,   699,
-     704,   708,   712,   717,   724,   728,   733,   737
+     490,   496,   502,   509,   516,   525,   526,   527,   530,   533,
+     536,   539,   544,   549,   557,   561,   565,   570,   574,   578,
+     591,   595,   603,   609,   612,   618,   623,   631,   636,   646,
+     650,   658,   663,   671,   675,   682,   686,   695,   700,   705,
+     711,   715,   720,   725,   729,   733,   738,   745,   749,   754,
+     758
 };
 #endif
 
@@ -1108,7 +1109,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-1)
+#define YYTABLE_NINF (-3)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -1117,19 +1118,19 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      60,   -75,   -75,   -75,    17,    60,   -75,   -75,   -75,   -75,
-       4,   -75,   -75,    58,    50,     9,    13,    16,   -75,    22,
-      -9,    25,    40,    44,   -75,    57,    69,    60,   -75,   -75,
-      71,    77,   -75,   -75,    57,    73,    82,   -75,    92,   -75,
-     -75,   -75,    88,    89,    90,    93,    -4,    -4,    -4,   -75,
-     -75,   -75,    67,    -4,   -75,   -75,    84,    61,   -75,   -75,
-       5,    75,   -75,    80,   -21,    94,   -75,   -75,    86,    -4,
-      26,    -4,    91,    85,   -75,   101,    -4,    -4,   -75,   102,
-     -75,   -75,   -75,   -75,    -4,   -75,    -4,    -4,    -4,    -4,
-     104,   107,    26,   108,   -75,   -75,   -75,   109,   105,   110,
-     -75,   -75,    94,   100,   -75,   106,    92,    -4,    92,   -75,
-      -4,   -75,   -75,   130,   115,   -75,   -75,    92,    92,   -75,
-     -75
+      41,   -27,   -75,   -75,   -75,    18,   122,   -75,   -75,   -75,
+     -75,    -3,    20,    19,   -75,   -75,    10,    21,    36,   -75,
+      25,   -75,     1,   -75,   -75,    46,    50,    49,    -8,    51,
+     -75,    53,   -75,    63,    61,    44,   -75,    65,    66,   -75,
+     -75,    63,    69,   -75,   -75,    96,   -75,   -75,    77,    83,
+      84,    86,   124,   124,   124,   -75,   -75,   -75,    48,   124,
+     -75,   -75,   -27,    64,   -75,   -75,     6,    81,   -75,    75,
+      31,    80,   -75,   -75,    90,   124,   110,   124,    85,    79,
+     -75,    93,   124,   124,   -75,   -75,   -75,   -75,   -75,   124,
+     -75,   124,   124,   124,   124,   101,   105,   110,   111,   -75,
+     -75,   -75,   113,    91,   115,   -75,   -75,    80,   104,   -75,
+     118,    96,   124,    96,   -75,   124,   -75,   -75,   142,   126,
+     -75,   -75,    96,    96,   -75,   -75
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -1137,35 +1138,35 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,    22,    23,    24,     0,     2,     4,     6,     7,     5,
-       0,     1,     3,    27,     0,     0,     0,     0,    21,    12,
-       0,    17,     0,    25,     9,     0,    10,     0,    16,    28,
-       0,    18,    13,     8,     0,    15,     0,    20,     0,    11,
-      14,    26,     0,     0,     0,     0,     0,     0,     0,    40,
-      60,    61,    42,     0,    33,    31,     0,     0,    29,    32,
-      57,     0,    44,    46,    48,    50,    52,    56,     0,     0,
-       0,     0,     0,    57,    55,     0,    65,     0,    54,    27,
-      19,    30,    62,    63,     0,    41,     0,     0,     0,     0,
-       0,     0,     0,     0,    39,    59,    67,     0,    64,     0,
-      45,    47,    51,    49,    53,     0,     0,     0,     0,    58,
-       0,    43,    38,    35,     0,    37,    66,     0,     0,    36,
-      34
+       0,     0,    25,    26,    27,     0,     0,     4,     6,     7,
+       5,     0,    30,     0,     1,     3,    30,     0,     0,    23,
+       0,    22,     0,    24,    21,     0,    28,    12,     0,    17,
+      31,     0,     9,     0,    10,     0,    16,     0,    18,    13,
+       8,     0,    15,    29,    20,     0,    11,    14,     0,     0,
+       0,     0,     0,     0,     0,    43,    63,    64,    45,     0,
+      36,    34,     0,     0,    32,    35,    60,     0,    47,    49,
+      51,    53,    55,    59,     0,     0,     0,     0,     0,    60,
+      58,     0,    68,     0,    57,    19,    33,    65,    66,     0,
+      44,     0,     0,     0,     0,     0,     0,     0,     0,    42,
+      62,    70,     0,    67,     0,    48,    50,    54,    52,    56,
+       0,     0,     0,     0,    61,     0,    46,    41,    38,     0,
+      40,    69,     0,     0,    39,    37
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -75,   -75,   -75,   135,   -75,   -75,   -75,   -75,   -75,    20,
-     -75,    46,     7,   -75,   -75,   -53,   -57,   -47,   -45,   -74,
-      55,    54,    56,   -42,   -75,   -75,   -75
+     -75,   -75,   -75,   145,   -75,   -75,   -75,   -75,   -75,    -6,
+     -75,    28,     8,   151,   -75,   -59,   -74,   -53,   -51,   -70,
+      62,    67,    70,   -48,   -75,   -75,   -75
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     4,     5,     6,     7,     8,    34,    25,    20,    54,
-      38,    55,    56,    14,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    97,    98
+       0,     5,     6,     7,     8,     9,    41,    33,    28,    60,
+      45,    61,    62,    17,    63,    64,    65,    66,    67,    68,
+      69,    70,    71,    72,    73,   102,   103
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -1173,59 +1174,63 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      73,    72,    96,    75,    81,    74,    73,    10,    82,    83,
-     100,    78,    10,    92,    87,    26,    88,    11,    47,    48,
-      27,     1,    21,     2,    91,     3,    93,    50,    51,    73,
-      52,    53,    99,    19,    35,   107,   116,    73,    13,    73,
-      73,    73,    73,    84,    22,    32,     9,   104,    47,    48,
-      23,     9,    24,   113,    39,   115,    49,    50,    51,    28,
-      52,    53,   114,    73,   119,   120,    42,    43,    29,    44,
-      45,    30,     1,     1,     2,     2,     3,     3,    46,    17,
-      18,    15,    31,    47,    48,    16,    31,    80,    82,    83,
-      76,    49,    50,    51,    77,    52,    53,    42,    43,    33,
-      44,    45,    36,    37,     1,    85,     2,    40,     3,    46,
-      41,    68,    69,    70,    47,    48,    71,    31,    79,    86,
-      90,    94,    49,    50,    51,    95,    52,    53,   105,    16,
-      89,   106,   108,   109,   110,    87,   112,   117,   111,   118,
-      12,   101,   103,   102
+      79,    78,    97,    81,    86,    80,    79,    12,    11,    87,
+      88,    84,   101,     2,    11,     3,    34,     4,    14,   105,
+      19,    35,    23,   112,    96,    27,    98,    39,    10,    79,
+      29,    16,   104,    22,    10,    46,    79,    18,    79,    79,
+      79,    79,     1,    42,    89,   121,   109,    18,    20,    21,
+      20,    24,   118,     2,   120,     3,     2,     4,     3,    26,
+       4,   119,    79,   124,   125,     1,    92,    25,    93,    48,
+      49,    82,    50,    51,    30,    83,     2,    31,     3,    32,
+       4,    52,    87,    88,    37,    36,    53,    54,    38,    38,
+      85,    40,    44,    43,    55,    56,    57,     1,    58,    59,
+      74,    48,    49,    47,    50,    51,    75,    76,     2,    77,
+       3,    90,     4,    52,    91,    99,    94,   100,    53,    54,
+     115,    38,    -2,     1,    95,   110,    55,    56,    57,   111,
+      58,    59,    53,    54,     2,   113,     3,   114,     4,    92,
+      55,    56,    57,   116,    58,    59,    53,    54,   117,   122,
+     123,    15,    13,   106,     0,    56,    57,     0,    58,    59,
+     108,     0,   107
 };
 
 static const yytype_int8 yycheck[] =
 {
-      47,    46,    76,    48,    57,    47,    53,     0,     3,     4,
-      84,    53,     5,    70,    35,    24,    37,     0,    22,    23,
-      29,    12,    15,    14,    69,    16,    71,    31,    32,    76,
-      34,    35,    77,    24,    27,    92,   110,    84,    34,    86,
-      87,    88,    89,    38,    31,    25,     0,    89,    22,    23,
-      34,     5,    30,   106,    34,   108,    30,    31,    32,    34,
-      34,    35,   107,   110,   117,   118,     5,     6,    28,     8,
-       9,    27,    12,    12,    14,    14,    16,    16,    17,    29,
-      30,    23,    25,    22,    23,    27,    25,    26,     3,     4,
-      23,    30,    31,    32,    27,    34,    35,     5,     6,    30,
-       8,     9,    31,    26,    12,    30,    14,    34,    16,    17,
-      28,    23,    23,    23,    22,    23,    23,    25,    34,    39,
-      34,    30,    30,    31,    32,    24,    34,    35,    24,    27,
-      36,    24,    24,    24,    29,    35,    30,     7,    28,    24,
-       5,    86,    88,    87
+      53,    52,    76,    54,    63,    53,    59,    34,     0,     3,
+       4,    59,    82,    12,     6,    14,    24,    16,     0,    89,
+       1,    29,     1,    97,    75,    24,    77,    33,     0,    82,
+      22,    34,    83,    23,     6,    41,    89,    27,    91,    92,
+      93,    94,     1,    35,    38,   115,    94,    27,    29,    30,
+      29,    30,   111,    12,   113,    14,    12,    16,    14,    34,
+      16,   112,   115,   122,   123,     1,    35,    31,    37,     5,
+       6,    23,     8,     9,    28,    27,    12,    27,    14,    30,
+      16,    17,     3,     4,    31,    34,    22,    23,    25,    25,
+      26,    30,    26,    28,    30,    31,    32,     1,    34,    35,
+      23,     5,     6,    34,     8,     9,    23,    23,    12,    23,
+      14,    30,    16,    17,    39,    30,    36,    24,    22,    23,
+      29,    25,     0,     1,    34,    24,    30,    31,    32,    24,
+      34,    35,    22,    23,    12,    24,    14,    24,    16,    35,
+      30,    31,    32,    28,    34,    35,    22,    23,    30,     7,
+      24,     6,     1,    91,    -1,    31,    32,    -1,    34,    35,
+      93,    -1,    92
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    12,    14,    16,    44,    45,    46,    47,    48,    54,
-      55,     0,    46,    34,    56,    23,    27,    29,    30,    24,
-      51,    55,    31,    34,    30,    50,    24,    29,    34,    28,
-      27,    25,    52,    30,    49,    55,    31,    26,    53,    52,
-      34,    28,     5,     6,     8,     9,    17,    22,    23,    30,
-      31,    32,    34,    35,    52,    54,    55,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,    23,    23,
-      23,    23,    61,    60,    66,    61,    23,    27,    66,    34,
-      26,    58,     3,     4,    38,    30,    39,    35,    37,    36,
-      34,    61,    59,    61,    30,    24,    62,    68,    69,    61,
-      62,    63,    65,    64,    66,    24,    24,    59,    24,    24,
-      29,    28,    30,    58,    61,    58,    62,     7,    24,    58,
-      58
+       0,     1,    12,    14,    16,    44,    45,    46,    47,    48,
+      54,    55,    34,    56,     0,    46,    34,    56,    27,     1,
+      29,    30,    23,     1,    30,    31,    34,    24,    51,    55,
+      28,    27,    30,    50,    24,    29,    34,    31,    25,    52,
+      30,    49,    55,    28,    26,    53,    52,    34,     5,     6,
+       8,     9,    17,    22,    23,    30,    31,    32,    34,    35,
+      52,    54,    55,    57,    58,    59,    60,    61,    62,    63,
+      64,    65,    66,    67,    23,    23,    23,    23,    61,    60,
+      66,    61,    23,    27,    66,    26,    58,     3,     4,    38,
+      30,    39,    35,    37,    36,    34,    61,    59,    61,    30,
+      24,    62,    68,    69,    61,    62,    63,    65,    64,    66,
+      24,    24,    59,    24,    24,    29,    28,    30,    58,    61,
+      58,    62,     7,    24,    58,    58
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
@@ -1233,11 +1238,12 @@ static const yytype_int8 yyr1[] =
 {
        0,    43,    44,    45,    45,    46,    46,    46,    47,    47,
       49,    48,    50,    48,    51,    51,    51,    51,    53,    52,
-      52,    54,    55,    55,    55,    56,    56,    56,    56,    57,
-      57,    58,    58,    58,    58,    58,    58,    58,    58,    58,
-      59,    59,    60,    60,    61,    61,    62,    62,    63,    63,
-      64,    64,    65,    65,    66,    66,    66,    67,    67,    67,
-      67,    67,    67,    67,    68,    68,    69,    69
+      52,    54,    54,    54,    54,    55,    55,    55,    56,    56,
+      56,    56,    57,    57,    58,    58,    58,    58,    58,    58,
+      58,    58,    58,    59,    59,    60,    60,    61,    61,    62,
+      62,    63,    63,    64,    64,    65,    65,    66,    66,    66,
+      67,    67,    67,    67,    67,    67,    67,    68,    68,    69,
+      69
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -1245,11 +1251,12 @@ static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     2,     1,     1,     1,     1,     6,     5,
        0,     7,     0,     6,     4,     3,     2,     1,     0,     4,
-       2,     3,     1,     1,     1,     3,     6,     1,     4,     1,
-       2,     1,     1,     1,     7,     5,     7,     5,     5,     3,
-       1,     2,     1,     4,     1,     3,     1,     3,     1,     3,
-       1,     3,     1,     3,     2,     2,     1,     1,     4,     3,
-       1,     1,     2,     2,     1,     0,     3,     1
+       2,     3,     3,     3,     3,     1,     1,     1,     3,     6,
+       1,     4,     1,     2,     1,     1,     1,     7,     5,     7,
+       5,     5,     3,     1,     2,     1,     4,     1,     3,     1,
+       3,     1,     3,     1,     3,     1,     3,     2,     2,     1,
+       1,     4,     3,     1,     1,     2,     2,     1,     0,     3,
+       1
 };
 
 
@@ -1721,7 +1728,7 @@ yyreduce:
 		// cout<<"eikhane ken ashe?"<<endl;
 		//write your code in this block in all the similar blocks below
 	}
-#line 1725 "y.tab.c"
+#line 1732 "y.tab.c"
     break;
 
   case 3: /* program: program unit  */
@@ -1732,7 +1739,7 @@ yyreduce:
 		(yyval.pss) = createPSS(fst, "null");
 		// cout<<*$$<<endl;
 	}
-#line 1736 "y.tab.c"
+#line 1743 "y.tab.c"
     break;
 
   case 4: /* program: unit  */
@@ -1742,7 +1749,7 @@ yyreduce:
 		(yyval.pss) = (yyvsp[0].pss);
 		// cout<<*$$<<endl;
 	}
-#line 1746 "y.tab.c"
+#line 1753 "y.tab.c"
     break;
 
   case 5: /* unit: var_declaration  */
@@ -1751,7 +1758,7 @@ yyreduce:
 		print("unit -> var_declaration");
 		(yyval.pss) = createPSS(*((yyvsp[0].sstring)), "null");
 	}
-#line 1755 "y.tab.c"
+#line 1762 "y.tab.c"
     break;
 
   case 6: /* unit: func_declaration  */
@@ -1760,7 +1767,7 @@ yyreduce:
 		print("unit -> func_declaration");
 		(yyval.pss) = createPSS(*((yyvsp[0].sstring)), "null");
 	}
-#line 1764 "y.tab.c"
+#line 1771 "y.tab.c"
     break;
 
   case 7: /* unit: func_definition  */
@@ -1769,7 +1776,7 @@ yyreduce:
 		print("unit -> func_definition");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 1773 "y.tab.c"
+#line 1780 "y.tab.c"
     break;
 
   case 8: /* func_declaration: type_specifier ID LPAREN parameter_list RPAREN SEMICOLON  */
@@ -1780,7 +1787,7 @@ yyreduce:
 		(yyval.sstring) = createFunctionDeclaration(*(yyvsp[-5].sstring), (yyvsp[-4].si)->getName(), *(yyvsp[-2].vvector));
 		// cout<<(*$$)<<endl;
 	}
-#line 1784 "y.tab.c"
+#line 1791 "y.tab.c"
     break;
 
   case 9: /* func_declaration: type_specifier ID LPAREN RPAREN SEMICOLON  */
@@ -1791,7 +1798,7 @@ yyreduce:
 		(yyval.sstring) = new string((*(yyvsp[-4].sstring)) + " " + ((yyvsp[-3].si)->getName()) + "();");
 		// cout<<(*$$)<<endl;
 	}
-#line 1795 "y.tab.c"
+#line 1802 "y.tab.c"
     break;
 
   case 10: /* $@1: %empty  */
@@ -1799,7 +1806,7 @@ yyreduce:
                                                                  {
 			insertFunctionIdToSymbolTable((yyvsp[-3].si), *(yyvsp[-4].sstring), true, (yyvsp[-1].vvector));
 		}
-#line 1803 "y.tab.c"
+#line 1810 "y.tab.c"
     break;
 
   case 11: /* func_definition: type_specifier ID LPAREN parameter_list RPAREN $@1 compound_statement  */
@@ -1813,7 +1820,7 @@ yyreduce:
 		string s = *((yyval.pss)->first); 
 		warning(s.c_str());
 	}
-#line 1817 "y.tab.c"
+#line 1824 "y.tab.c"
     break;
 
   case 12: /* $@2: %empty  */
@@ -1821,7 +1828,7 @@ yyreduce:
                                           {
 			insertFunctionIdToSymbolTable((yyvsp[-2].si), *(yyvsp[-3].sstring), true, new vector<SymbolInfo*>);
 		}
-#line 1825 "y.tab.c"
+#line 1832 "y.tab.c"
     break;
 
   case 13: /* func_definition: type_specifier ID LPAREN RPAREN $@2 compound_statement  */
@@ -1836,7 +1843,7 @@ yyreduce:
 
 		// cout<<*$$<<endl;
 	}
-#line 1840 "y.tab.c"
+#line 1847 "y.tab.c"
     break;
 
   case 14: /* parameter_list: parameter_list COMMA type_specifier ID  */
@@ -1845,7 +1852,7 @@ yyreduce:
 		print("parameter_list -> parameter_list COMMA type_specifier ID");
 		(yyval.vvector) = addParameter((yyvsp[-3].vvector), (yyvsp[0].si), *(yyvsp[-1].sstring));
 	}
-#line 1849 "y.tab.c"
+#line 1856 "y.tab.c"
     break;
 
   case 15: /* parameter_list: parameter_list COMMA type_specifier  */
@@ -1854,7 +1861,7 @@ yyreduce:
 		print("parameter_list -> parameter_list COMMA type_specifier");
 		(yyval.vvector) = addParameter((yyvsp[-2].vvector), new SymbolInfo("", *(yyvsp[0].sstring)), *(yyvsp[0].sstring));
 	}
-#line 1858 "y.tab.c"
+#line 1865 "y.tab.c"
     break;
 
   case 16: /* parameter_list: type_specifier ID  */
@@ -1863,7 +1870,7 @@ yyreduce:
 		print("parameter_list -> type_specifier ID");
 		(yyval.vvector) = addParameter(new vector<SymbolInfo*>, (yyvsp[0].si), *(yyvsp[-1].sstring));
 	}
-#line 1867 "y.tab.c"
+#line 1874 "y.tab.c"
     break;
 
   case 17: /* parameter_list: type_specifier  */
@@ -1872,13 +1879,13 @@ yyreduce:
 		print("parameter_list -> type_specifier");
 		(yyval.vvector) = addParameter(new vector<SymbolInfo*>, new SymbolInfo("", (*(yyvsp[0].sstring))), *(yyvsp[0].sstring));
 	}
-#line 1876 "y.tab.c"
+#line 1883 "y.tab.c"
     break;
 
   case 18: /* $@3: %empty  */
 #line 483 "1805090.y"
                            {table->enterScope(); addParamsToScopeTable();}
-#line 1882 "y.tab.c"
+#line 1889 "y.tab.c"
     break;
 
   case 19: /* compound_statement: LCURL $@3 statements RCURL  */
@@ -1890,7 +1897,7 @@ yyreduce:
 		(yyval.pss) = createPSS(("{\n"+*((yyvsp[-1].pss)->first)+"\n}").c_str(), *((yyvsp[-1].pss)->second));
 		table->exitScope();
 	}
-#line 1894 "y.tab.c"
+#line 1901 "y.tab.c"
     break;
 
   case 20: /* compound_statement: LCURL RCURL  */
@@ -1899,7 +1906,7 @@ yyreduce:
 		print("compound_statement -> LCURL RCURL");
 		(yyval.pss) = createPSS("{}", "void");
 	}
-#line 1903 "y.tab.c"
+#line 1910 "y.tab.c"
     break;
 
   case 21: /* var_declaration: type_specifier declaration_list SEMICOLON  */
@@ -1910,128 +1917,164 @@ yyreduce:
 		insertToSymbolTable(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
 		// cout<<(*$$)<<endl;
 	}
-#line 1914 "y.tab.c"
+#line 1921 "y.tab.c"
     break;
 
-  case 22: /* type_specifier: INT  */
-#line 504 "1805090.y"
-                      {print("type_specifier -> INT"); (yyval.sstring) = new string("int");}
-#line 1920 "y.tab.c"
+  case 22: /* var_declaration: error declaration_list SEMICOLON  */
+#line 502 "1805090.y"
+                                           {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		(yyval.sstring) = createVarDeclaration("void", *(yyvsp[-1].vvector));
+		insertToSymbolTable("void", *(yyvsp[-1].vvector));
+		errorr("type_specifier not specified");
+		// cout<<(*$$)<<endl;
+	}
+#line 1933 "y.tab.c"
     break;
 
-  case 23: /* type_specifier: FLOAT  */
-#line 505 "1805090.y"
-                {print("type_specifier -> FLOAT"); (yyval.sstring) = new string("float");}
-#line 1926 "y.tab.c"
-    break;
-
-  case 24: /* type_specifier: VOID  */
-#line 506 "1805090.y"
-               {print("type_specifier -> VOID"); (yyval.sstring) = new string("void");}
-#line 1932 "y.tab.c"
-    break;
-
-  case 25: /* declaration_list: declaration_list COMMA ID  */
+  case 23: /* var_declaration: error declaration_list error  */
 #line 509 "1805090.y"
+                                       {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		(yyval.sstring) = createVarDeclaration("void", *(yyvsp[-1].vvector));
+		insertToSymbolTable("void", *(yyvsp[-1].vvector));
+		errorr("type_specifier not specified, missing semicolon");
+		// cout<<(*$$)<<endl;
+	}
+#line 1945 "y.tab.c"
+    break;
+
+  case 24: /* var_declaration: type_specifier declaration_list error  */
+#line 516 "1805090.y"
+                                                {
+		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		(yyval.sstring) = createVarDeclaration(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
+		insertToSymbolTable(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
+		errorr("missing semicolon");
+		// cout<<(*$$)<<endl;
+	}
+#line 1957 "y.tab.c"
+    break;
+
+  case 25: /* type_specifier: INT  */
+#line 525 "1805090.y"
+                      {print("type_specifier -> INT"); (yyval.sstring) = new string("int");}
+#line 1963 "y.tab.c"
+    break;
+
+  case 26: /* type_specifier: FLOAT  */
+#line 526 "1805090.y"
+                {print("type_specifier -> FLOAT"); (yyval.sstring) = new string("float");}
+#line 1969 "y.tab.c"
+    break;
+
+  case 27: /* type_specifier: VOID  */
+#line 527 "1805090.y"
+               {print("type_specifier -> VOID"); (yyval.sstring) = new string("void");}
+#line 1975 "y.tab.c"
+    break;
+
+  case 28: /* declaration_list: declaration_list COMMA ID  */
+#line 530 "1805090.y"
                                              {
 		print("declaration_list -> declaration_list COMMA ID");
 		(yyval.vvector) = addDeclaration((yyvsp[-2].vvector), (yyvsp[0].si), "0");}
-#line 1940 "y.tab.c"
+#line 1983 "y.tab.c"
     break;
 
-  case 26: /* declaration_list: declaration_list COMMA ID LTHIRD CONST_INT RTHIRD  */
-#line 512 "1805090.y"
+  case 29: /* declaration_list: declaration_list COMMA ID LTHIRD CONST_INT RTHIRD  */
+#line 533 "1805090.y"
                                                             {
 		print("declaration_list -> declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
 		(yyval.vvector) = addDeclaration((yyvsp[-5].vvector), (yyvsp[-3].si), (yyvsp[-1].si)->getName());	}
-#line 1948 "y.tab.c"
+#line 1991 "y.tab.c"
     break;
 
-  case 27: /* declaration_list: ID  */
-#line 515 "1805090.y"
+  case 30: /* declaration_list: ID  */
+#line 536 "1805090.y"
                 {	
 		print("declaration_list -> ID");
 		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[0].si), "0");}
-#line 1956 "y.tab.c"
+#line 1999 "y.tab.c"
     break;
 
-  case 28: /* declaration_list: ID LTHIRD CONST_INT RTHIRD  */
-#line 518 "1805090.y"
+  case 31: /* declaration_list: ID LTHIRD CONST_INT RTHIRD  */
+#line 539 "1805090.y"
                                      {	
 		print("declaration_list -> ID LTHIRD CONST_INT RTHIRD");
 		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[-3].si), (yyvsp[-1].si)->getName());}
-#line 1964 "y.tab.c"
+#line 2007 "y.tab.c"
     break;
 
-  case 29: /* statements: statement  */
-#line 523 "1805090.y"
+  case 32: /* statements: statement  */
+#line 544 "1805090.y"
                        {
 		print("statements -> statement");
 		(yyval.pss) = (yyvsp[0].pss);
 		// cout<<'\t'<<(*$$)<<endl;
 	}
-#line 1974 "y.tab.c"
+#line 2017 "y.tab.c"
     break;
 
-  case 30: /* statements: statements statement  */
-#line 528 "1805090.y"
+  case 33: /* statements: statements statement  */
+#line 549 "1805090.y"
                                {
 		print("statements -> statements statement");
 		string type = getReturnType(*((yyvsp[-1].pss)->second), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS(*((yyvsp[-1].pss)->first)+"\n"+*((yyvsp[0].pss)->first), type);
 		// cout<<(*$$)<<endl;
 	}
-#line 1985 "y.tab.c"
+#line 2028 "y.tab.c"
     break;
 
-  case 31: /* statement: var_declaration  */
-#line 536 "1805090.y"
+  case 34: /* statement: var_declaration  */
+#line 557 "1805090.y"
                             {
 		print("statement -> var_declaration");
 		(yyval.pss) = createPSS(*(yyvsp[0].sstring), "null");
 	}
-#line 1994 "y.tab.c"
+#line 2037 "y.tab.c"
     break;
 
-  case 32: /* statement: expression_statement  */
-#line 540 "1805090.y"
+  case 35: /* statement: expression_statement  */
+#line 561 "1805090.y"
                                {
 		print("statement -> expression_statement");
 		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first), "null");
 	}
-#line 2003 "y.tab.c"
+#line 2046 "y.tab.c"
     break;
 
-  case 33: /* statement: compound_statement  */
-#line 544 "1805090.y"
+  case 36: /* statement: compound_statement  */
+#line 565 "1805090.y"
                              {
 		print("statement -> compound_statement");
 		// $$ = createPSS(*$1, *($1-.second));
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2013 "y.tab.c"
+#line 2056 "y.tab.c"
     break;
 
-  case 34: /* statement: FOR LPAREN expression_statement expression_statement expression RPAREN statement  */
-#line 549 "1805090.y"
+  case 37: /* statement: FOR LPAREN expression_statement expression_statement expression RPAREN statement  */
+#line 570 "1805090.y"
                                                                                            {
 		string s = "for (" + *((yyvsp[-4].pss)->first) + " " + *((yyvsp[-3].pss)->first) + " " + *((yyvsp[-2].pss)->first) + " ) " + *((yyvsp[0].pss)->first); 
 		(yyval.pss) = createPSS(s, *((yyvsp[0].pss)->second));
 	}
-#line 2022 "y.tab.c"
+#line 2065 "y.tab.c"
     break;
 
-  case 35: /* statement: IF LPAREN expression RPAREN statement  */
-#line 553 "1805090.y"
+  case 38: /* statement: IF LPAREN expression RPAREN statement  */
+#line 574 "1805090.y"
                                                                       {
 		string s = "if (" + *((yyvsp[-2].pss)->first) +") " + *((yyvsp[0].pss)->first);
 		(yyval.pss) = createPSS(s, *((yyvsp[0].pss)->second));
 	}
-#line 2031 "y.tab.c"
+#line 2074 "y.tab.c"
     break;
 
-  case 36: /* statement: IF LPAREN expression RPAREN statement ELSE statement  */
-#line 557 "1805090.y"
+  case 39: /* statement: IF LPAREN expression RPAREN statement ELSE statement  */
+#line 578 "1805090.y"
                                                                {
 		string s = "if ("+*((yyvsp[-4].pss)->first)+") "+*((yyvsp[-2].pss)->first) + "\nelse "+ *((yyvsp[0].pss)->first);
 		string t1 = *((yyvsp[-2].pss)->second);
@@ -2045,20 +2088,20 @@ yyreduce:
 		}
 		(yyval.pss) = createPSS(s, type);
 	}
-#line 2049 "y.tab.c"
+#line 2092 "y.tab.c"
     break;
 
-  case 37: /* statement: WHILE LPAREN expression RPAREN statement  */
-#line 570 "1805090.y"
+  case 40: /* statement: WHILE LPAREN expression RPAREN statement  */
+#line 591 "1805090.y"
                                                    {
 		print("statement -> WHILE LPAREN expression RPAREN statement");
 		(yyval.pss) = createPSS("while("+*((yyvsp[-2].pss)->first)+")", "null");
 	}
-#line 2058 "y.tab.c"
+#line 2101 "y.tab.c"
     break;
 
-  case 38: /* statement: PRINTLN LPAREN ID RPAREN SEMICOLON  */
-#line 574 "1805090.y"
+  case 41: /* statement: PRINTLN LPAREN ID RPAREN SEMICOLON  */
+#line 595 "1805090.y"
                                              {
 		if(table->lookUp((yyvsp[-2].si)->getName()) == nullptr){
 			string s = "Undeclared variable "+(yyvsp[-2].si)->getName();
@@ -2067,68 +2110,68 @@ yyreduce:
 		print("statement -> PRINTLN LPAREN ID RPAREN SEMICOLON");
 		(yyval.pss) = createPSS("printf("+(yyvsp[-2].si)->getName()+");", "null");
 	}
-#line 2071 "y.tab.c"
+#line 2114 "y.tab.c"
     break;
 
-  case 39: /* statement: RETURN expression SEMICOLON  */
-#line 582 "1805090.y"
+  case 42: /* statement: RETURN expression SEMICOLON  */
+#line 603 "1805090.y"
                                       {
 		print("statement -> RETURN expression SEMICOLON");
 		(yyval.pss) = createPSS("return "+*((yyvsp[-1].pss)->first)+";", *((yyvsp[-1].pss)->second));
 	}
-#line 2080 "y.tab.c"
+#line 2123 "y.tab.c"
     break;
 
-  case 40: /* expression_statement: SEMICOLON  */
-#line 588 "1805090.y"
+  case 43: /* expression_statement: SEMICOLON  */
+#line 609 "1805090.y"
                                         {
 		(yyval.pss) = createPSS(";", "VOID");
 	}
-#line 2088 "y.tab.c"
+#line 2131 "y.tab.c"
     break;
 
-  case 41: /* expression_statement: expression SEMICOLON  */
-#line 591 "1805090.y"
+  case 44: /* expression_statement: expression SEMICOLON  */
+#line 612 "1805090.y"
                                {
 		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + ";", *((yyvsp[-1].pss)->second));
 		printPSS(*(yyval.pss));
 	}
-#line 2097 "y.tab.c"
+#line 2140 "y.tab.c"
     break;
 
-  case 42: /* variable: ID  */
-#line 597 "1805090.y"
+  case 45: /* variable: ID  */
+#line 618 "1805090.y"
                 {
 		print("variable -> ID");
 		string type = checkAndValidateID((yyvsp[0].si)->getName(), "0", "NOT_ARRAY");
 		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(), type);
 	}
-#line 2107 "y.tab.c"
+#line 2150 "y.tab.c"
     break;
 
-  case 43: /* variable: ID LTHIRD expression RTHIRD  */
-#line 602 "1805090.y"
+  case 46: /* variable: ID LTHIRD expression RTHIRD  */
+#line 623 "1805090.y"
                                       {
 		print("variable -> ID LTHIRD expression RTHIRD");
 		string type = checkAndValidateID((yyvsp[-3].si)->getName(), *((yyvsp[-1].pss)->first), *((yyvsp[-1].pss)->second));
 		(yyval.pss) = createPSS ((yyvsp[-3].si)->getName() + "[" + *((yyvsp[-1].pss)->first) + "]", type);
 		printPSS(*(yyval.pss));
 	}
-#line 2118 "y.tab.c"
+#line 2161 "y.tab.c"
     break;
 
-  case 44: /* expression: logic_expression  */
-#line 610 "1805090.y"
+  case 47: /* expression: logic_expression  */
+#line 631 "1805090.y"
                               {
 		print("expression -> logic_expression");
 		(yyval.pss) = (yyvsp[0].pss);
 		printPSS(*(yyval.pss));
 	}
-#line 2128 "y.tab.c"
+#line 2171 "y.tab.c"
     break;
 
-  case 45: /* expression: variable ASSIGNOP logic_expression  */
-#line 615 "1805090.y"
+  case 48: /* expression: variable ASSIGNOP logic_expression  */
+#line 636 "1805090.y"
                                              {
 		// cout<<"\t\t\t\teikhane keno ashe?"<<endl;
 		//TODO eikhane onek kahini kora lagbe 
@@ -2137,80 +2180,80 @@ yyreduce:
 		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) + " = " + *((yyvsp[0].pss)->first), *((yyvsp[-2].pss)->second));
 		printPSS(*(yyval.pss));
 	}
-#line 2141 "y.tab.c"
+#line 2184 "y.tab.c"
     break;
 
-  case 46: /* logic_expression: rel_expression  */
-#line 625 "1805090.y"
+  case 49: /* logic_expression: rel_expression  */
+#line 646 "1805090.y"
                                   {
 		print("logic_expression -> rel_expression");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2150 "y.tab.c"
+#line 2193 "y.tab.c"
     break;
 
-  case 47: /* logic_expression: rel_expression LOGICOP rel_expression  */
-#line 629 "1805090.y"
+  case 50: /* logic_expression: rel_expression LOGICOP rel_expression  */
+#line 650 "1805090.y"
                                                 {
 		print("rel_expression LOGICOP rel_expression");
 		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) +  " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
 		printPSS(*(yyval.pss));
 	}
-#line 2161 "y.tab.c"
+#line 2204 "y.tab.c"
     break;
 
-  case 48: /* rel_expression: simple_expression  */
-#line 637 "1805090.y"
+  case 51: /* rel_expression: simple_expression  */
+#line 658 "1805090.y"
                                     {
 		print("rel_expression -> simple_expression");
 		(yyval.pss) = (yyvsp[0].pss);
 		printPSS(*(yyval.pss));
 	}
-#line 2171 "y.tab.c"
+#line 2214 "y.tab.c"
     break;
 
-  case 49: /* rel_expression: simple_expression RELOP simple_expression  */
-#line 642 "1805090.y"
+  case 52: /* rel_expression: simple_expression RELOP simple_expression  */
+#line 663 "1805090.y"
                                                         {
 		print("rel_expression -> simple_expression RELOP simple_expression");
 		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
 		printPSS(*(yyval.pss));
 	}
-#line 2182 "y.tab.c"
+#line 2225 "y.tab.c"
     break;
 
-  case 50: /* simple_expression: term  */
-#line 650 "1805090.y"
+  case 53: /* simple_expression: term  */
+#line 671 "1805090.y"
                          {
 		print("simple_expression -> term");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2191 "y.tab.c"
+#line 2234 "y.tab.c"
     break;
 
-  case 51: /* simple_expression: simple_expression ADDOP term  */
-#line 654 "1805090.y"
+  case 54: /* simple_expression: simple_expression ADDOP term  */
+#line 675 "1805090.y"
                                        {
 		print("simple_expression -> simple_expression ADDOP term");
 		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), getHigherType(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second)));
 		// printPSS(*$$);
 	}
-#line 2201 "y.tab.c"
+#line 2244 "y.tab.c"
     break;
 
-  case 52: /* term: unary_expression  */
-#line 661 "1805090.y"
+  case 55: /* term: unary_expression  */
+#line 682 "1805090.y"
                          {
 		print("term -> unary_expression");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2210 "y.tab.c"
+#line 2253 "y.tab.c"
     break;
 
-  case 53: /* term: term MULOP unary_expression  */
-#line 665 "1805090.y"
+  case 56: /* term: term MULOP unary_expression  */
+#line 686 "1805090.y"
                                       {
 		print("term -> MULOP unary_expression");
 		checkModulusOperator(*((yyvsp[-2].pss)->second), (yyvsp[-1].si)->getName(), *((yyvsp[0].pss)->second), *((yyvsp[0].pss)->first));
@@ -2218,142 +2261,142 @@ yyreduce:
 		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), type);
 		printPSS(*(yyval.pss));
 	}
-#line 2222 "y.tab.c"
+#line 2265 "y.tab.c"
     break;
 
-  case 54: /* unary_expression: ADDOP unary_expression  */
-#line 674 "1805090.y"
+  case 57: /* unary_expression: ADDOP unary_expression  */
+#line 695 "1805090.y"
                                           {
 		print("unary_expression -> ADDOP unary_expression");
 		(yyval.pss) = createPSS ((yyvsp[-1].si)->getName() + "" +(*((yyvsp[0].pss)->first)), *((yyvsp[0].pss)->second));
 		printPSS(*(yyval.pss));
 	}
-#line 2232 "y.tab.c"
+#line 2275 "y.tab.c"
     break;
 
-  case 55: /* unary_expression: NOT unary_expression  */
-#line 679 "1805090.y"
+  case 58: /* unary_expression: NOT unary_expression  */
+#line 700 "1805090.y"
                                {
 		print("unary_expression -> NOT unary_expression");
 		(yyval.pss) = createPSS ("! "+(*((yyvsp[0].pss)->first)),"int");
 		// printPSS(*$$);
 	}
-#line 2242 "y.tab.c"
+#line 2285 "y.tab.c"
     break;
 
-  case 56: /* unary_expression: factor  */
-#line 684 "1805090.y"
+  case 59: /* unary_expression: factor  */
+#line 705 "1805090.y"
                  {
 		print("unary_expression -> factor");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2251 "y.tab.c"
+#line 2294 "y.tab.c"
     break;
 
-  case 57: /* factor: variable  */
-#line 690 "1805090.y"
+  case 60: /* factor: variable  */
+#line 711 "1805090.y"
                    {
 		print("factor -> variable");
 		(yyval.pss) = (yyvsp[0].pss);
 	}
-#line 2260 "y.tab.c"
+#line 2303 "y.tab.c"
     break;
 
-  case 58: /* factor: ID LPAREN argument_list RPAREN  */
-#line 694 "1805090.y"
+  case 61: /* factor: ID LPAREN argument_list RPAREN  */
+#line 715 "1805090.y"
                                          { //TODO TODO
 		print("factor -> ID LPAREN argument_list RPAREN");
 		validateAndCreateFactor((yyvsp[-3].si), *(yyvsp[-1].vss));
 		(yyval.pss) = createPSS ((yyvsp[-3].si)->getName() + "(" + getStringFromArgumentList(*(yyvsp[-1].vss)) + ")", getIdVarType((yyvsp[-3].si)->getName()));
 	}
-#line 2270 "y.tab.c"
+#line 2313 "y.tab.c"
     break;
 
-  case 59: /* factor: LPAREN expression RPAREN  */
-#line 699 "1805090.y"
+  case 62: /* factor: LPAREN expression RPAREN  */
+#line 720 "1805090.y"
                                    {
 		print("factor -> LPAREN expression RPAREN");
 		(yyval.pss) = createPSS ("("+*((yyvsp[-1].pss)->first)+")",*((yyvsp[-1].pss)->second));
 		// printPSS(*$$);
 	}
-#line 2280 "y.tab.c"
+#line 2323 "y.tab.c"
     break;
 
-  case 60: /* factor: CONST_INT  */
-#line 704 "1805090.y"
+  case 63: /* factor: CONST_INT  */
+#line 725 "1805090.y"
                     {
 		print("factor -> CONST_INT");
 		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(),"CONST_INT");
 	}
-#line 2289 "y.tab.c"
+#line 2332 "y.tab.c"
     break;
 
-  case 61: /* factor: CONST_FLOAT  */
-#line 708 "1805090.y"
+  case 64: /* factor: CONST_FLOAT  */
+#line 729 "1805090.y"
                       {
 		print("factor -> CONST_FLOAT");
 		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(), "CONST_FLOAT");
 	}
-#line 2298 "y.tab.c"
+#line 2341 "y.tab.c"
     break;
 
-  case 62: /* factor: variable INCOP  */
-#line 712 "1805090.y"
+  case 65: /* factor: variable INCOP  */
+#line 733 "1805090.y"
                          {
 		print("factor -> variable INCOP");
 		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "++", *((yyvsp[-1].pss)->second));
 		printPSS(*(yyval.pss));
 	}
-#line 2308 "y.tab.c"
+#line 2351 "y.tab.c"
     break;
 
-  case 63: /* factor: variable DECOP  */
-#line 717 "1805090.y"
+  case 66: /* factor: variable DECOP  */
+#line 738 "1805090.y"
                          {
 		print("factor -> variable DECOP");
 		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "--", *((yyvsp[-1].pss)->second));
 		printPSS(*(yyval.pss));
 	}
-#line 2318 "y.tab.c"
+#line 2361 "y.tab.c"
     break;
 
-  case 64: /* argument_list: arguments  */
-#line 724 "1805090.y"
+  case 67: /* argument_list: arguments  */
+#line 745 "1805090.y"
                           {
 		print("arguments_list -> arguments");
 		(yyval.vss) = (yyvsp[0].vss);
 	}
-#line 2327 "y.tab.c"
+#line 2370 "y.tab.c"
     break;
 
-  case 65: /* argument_list: %empty  */
-#line 728 "1805090.y"
+  case 68: /* argument_list: %empty  */
+#line 749 "1805090.y"
           {
 		(yyval.vss) = new vector<pair<string*, string*>*>;
 	}
-#line 2335 "y.tab.c"
+#line 2378 "y.tab.c"
     break;
 
-  case 66: /* arguments: arguments COMMA logic_expression  */
-#line 733 "1805090.y"
+  case 69: /* arguments: arguments COMMA logic_expression  */
+#line 754 "1805090.y"
                                              {
 		print("arguments -> arguments COMMA logic_expression");
 		(yyval.vss) = addLogicalExpression((yyvsp[-2].vss), (yyvsp[0].pss));
 	}
-#line 2344 "y.tab.c"
+#line 2387 "y.tab.c"
     break;
 
-  case 67: /* arguments: logic_expression  */
-#line 737 "1805090.y"
+  case 70: /* arguments: logic_expression  */
+#line 758 "1805090.y"
                            {
 		print("arguments -> logic_expression");
 		(yyval.vss) = addLogicalExpression(new vector<pair<string*, string*>*>, (yyvsp[0].pss));
 	}
-#line 2353 "y.tab.c"
+#line 2396 "y.tab.c"
     break;
 
 
-#line 2357 "y.tab.c"
+#line 2400 "y.tab.c"
 
       default: break;
     }
@@ -2546,7 +2589,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 749 "1805090.y"
+#line 764 "1805090.y"
 
 int main(int argc,char *argv[])
 {

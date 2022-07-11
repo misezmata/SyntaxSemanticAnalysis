@@ -636,7 +636,7 @@ int startedAt;
 extern YYSTYPE yylval;
 // extern SymbolTable *table;
 // void yyerror(char *);
-
+extern void errorr(const char *s);
 
 void insertIntoSymbolTable(string name, string type){
 	// cout<<"type: <"<<type<<">\tname: <"<<name<<">"<<endl;
@@ -1269,70 +1269,91 @@ case 50:
 YY_RULE_SETUP
 #line 210 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Too many decimal points "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Too many decimal points "<<yytext<<endl;
+	string s = string("Too many decimal points ") + yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 214 "1805090.l"
+#line 219 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Ill formed number "<<yytext<<endl;
+	// lout<<"Ill formed number "<<yytext<<endl;
+	string s = string("Ill formed numeber ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 218 "1805090.l"
+#line 227 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	string s = string("Invalid prefix on ID or invalid suffix on Number ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 222 "1805090.l"
+#line 236 "1805090.l"
 {
 	errorAtLine();
-	lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	// lout<<"Invalid prefix on ID or invalid suffix on Number "<<yytext<<endl;
+	string s = string("Invalid prefix on ID or invalid suffix on Number ")+yytext;
+	errorr(s.c_str());
+	SymbolInfo* si = new SymbolInfo(yytext, "CONST_FLOAT");
+	yylval.si = si;
+	return CONST_FLOAT;
 }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 226 "1805090.l"
+#line 245 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Empty character constant error ''"<<endl;
+	// errorAtLine();
+	// lout<<"Empty character constant error ''"<<endl;
+	// string s = "Empty character constant error ''";
+	// errorr(s.c_str());
 }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 230 "1805090.l"
+#line 251 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Multi character constant error "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Multi character constant error "<<yytext<<endl;
 }
 	YY_BREAK
 case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
-#line 234 "1805090.l"
+#line 255 "1805090.l"
 {
-	errorAtLine(yylineno - 1);
-	lout<<"Unterminated character "<<yytext;
+	// errorAtLine(yylineno - 1);
+	// lout<<"Unterminated character "<<yytext;
 }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 238 "1805090.l"
+#line 259 "1805090.l"
 {
-	errorAtLine();
-	lout<<"Unterminated character "<<yytext<<endl;
+	// errorAtLine();
+	// lout<<"Unterminated character "<<yytext<<endl;
 }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 242 "1805090.l"
+#line 263 "1805090.l"
 {
 	BEGIN STRING;
 	string_builder = "";
@@ -1343,7 +1364,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 249 "1805090.l"
+#line 270 "1805090.l"
 {
 	string s = "\'";
 	s += yytext;
@@ -1354,7 +1375,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 256 "1805090.l"
+#line 277 "1805090.l"
 {
 	string_builder += "\"";
 	string_yytext += yytext;
@@ -1363,7 +1384,7 @@ YY_RULE_SETUP
 case 61:
 /* rule 61 can match eol */
 YY_RULE_SETUP
-#line 260 "1805090.l"
+#line 281 "1805090.l"
 {
 	string_yytext += yytext;
 }
@@ -1371,25 +1392,25 @@ YY_RULE_SETUP
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
-#line 264 "1805090.l"
+#line 285 "1805090.l"
 {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	BEGIN INITIAL;
 }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 269 "1805090.l"
+#line 290 "1805090.l"
 {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	BEGIN INITIAL;
 }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 274 "1805090.l"
+#line 295 "1805090.l"
 {
 	string_yytext += yytext;
 	handleString("STRING", string_builder);
@@ -1398,23 +1419,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 279 "1805090.l"
+#line 300 "1805090.l"
 {
 	string_builder += yytext;
 	string_yytext += yytext;
 }
 	YY_BREAK
 case YY_STATE_EOF(STRING):
-#line 283 "1805090.l"
+#line 304 "1805090.l"
 {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated String "<<string_yytext<<endl;
 	return 0;
 }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 289 "1805090.l"
+#line 310 "1805090.l"
 {
 	startedAt = yylineno;
 	BEGIN SINGLE_COMMENT;
@@ -1424,13 +1445,13 @@ YY_RULE_SETUP
 case 67:
 /* rule 67 can match eol */
 YY_RULE_SETUP
-#line 294 "1805090.l"
+#line 315 "1805090.l"
 {
 }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 296 "1805090.l"
+#line 317 "1805090.l"
 {
 	string_builder += yytext;
 }
@@ -1438,16 +1459,16 @@ YY_RULE_SETUP
 case 69:
 /* rule 69 can match eol */
 YY_RULE_SETUP
-#line 299 "1805090.l"
+#line 320 "1805090.l"
 {
 	// cout<<"built comment: "<<string_builder<<endl;
-	lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
+	// lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
 	BEGIN INITIAL;
 }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 305 "1805090.l"
+#line 326 "1805090.l"
 {
 	BEGIN MULTI_COMMENT;
 	startedAt = yylineno;
@@ -1456,32 +1477,32 @@ YY_RULE_SETUP
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 310 "1805090.l"
+#line 331 "1805090.l"
 {
 	string_builder += yytext;
 	// cout<<"built comment: "<<string_builder<<endl;
-	lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
+	// lout<<"\nLINE no "<<startedAt<<": Token <COMMENT> Lexeme "<<string_builder<<" found"<<endl;
 	BEGIN INITIAL;
 }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 316 "1805090.l"
+#line 337 "1805090.l"
 {
 	string_builder += yytext;
 }
 	YY_BREAK
 case YY_STATE_EOF(MULTI_COMMENT):
-#line 319 "1805090.l"
+#line 340 "1805090.l"
 {
-	errorAtLine(startedAt);
-	lout<<"Unterminated String "<<string_yytext<<endl;
+	// errorAtLine(startedAt);
+	// lout<<"Unterminated Comment "<<string_yytext<<endl;
 	return 0;
 }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SINGLE_COMMENT):
-#line 326 "1805090.l"
+#line 346 "1805090.l"
 {
 	// cout<<"end of file"<<endl;
 	return 0;
@@ -1489,22 +1510,20 @@ case YY_STATE_EOF(SINGLE_COMMENT):
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 330 "1805090.l"
+#line 350 "1805090.l"
 {
 	// cout<<"eikhane: "<<yytext<<endl;
-	lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
+	// lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
 	error_count++;
-	SymbolInfo* si = new SymbolInfo(yytext, "UNCHAR");
-	yylval.si = si;
-	return UNCHAR;
+	errorr("Unrecognized character");
 }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 338 "1805090.l"
+#line 356 "1805090.l"
 ECHO;
 	YY_BREAK
-#line 1508 "lex.yy.c"
+#line 1527 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2519,40 +2538,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 338 "1805090.l"
+#line 356 "1805090.l"
 
-
-// int main(int argc,char *argv[]){
-	
-// 	if(argc!=2){
-// 		printf("Please provide input file name and try again\n");
-// 		return 0;
-// 	}
-// 	char ara[100];
-// 	strcpy(ara, argv[1]);
-// 	FILE *fin=fopen(argv[1],"r");
-// 	if(fin==NULL){
-// 		printf("Cannot open specified file\n");
-// 		return 0;
-// 	}
-// 	// logout= fopen(strcat(argv[1], "_log.txt"),"w");
-// 	// tokenout= fopen(strcat(ara, "_token.txt"),"w");
-// 	lout.open(strcat(argv[1], "_log.txt"));
-// 	tout.open(strcat(ara, "_token.txt"));
-// 	// st = new SymbolTable(7);
-// 	yyin= fin;
-// 	yylineno = 1;
-// 	yylex();
-
-// 	lout<<"Total lines: "<<yylineno<<endl;
-// 	lout<<"Total errors: "<<error_count<<endl;
-
-
-// 	fclose(yyin);
-// 	// delete st;
-// 	lout.close();
-// 	tout.close();
-// 	// fclose(tokenout);
-// 	// fclose(logout);
-// 	return 0;
-// }
