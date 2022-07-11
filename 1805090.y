@@ -15,6 +15,8 @@ SymbolTable *table;
 string builder;
 vector<pair<string, string> > paramList;
 ofstream errout;
+ofstream logout;
+int errorno = 0;
 
 void yyerror(char *s)
 {
@@ -22,7 +24,9 @@ void yyerror(char *s)
 }
 
 void errorr(const char *s){
-	errout<<"Erro at line "<<yylineno<<": "<<s<<"\n"<<endl;
+	errorno++;
+	errout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
+	logout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
 	printf("\033[1;31mError at line: %d:  %s \033[0m\n",yylineno, s);
 }
 
@@ -32,6 +36,10 @@ void warning(const char *s){
 
 void print(string s){
 	cout<<"LINE "<<yylineno<<": "<<s<<endl;
+	logout<<"LINE "<<yylineno<<": "<<s<<endl<<endl;
+}
+void log(const char *s){
+	logout<<s<<endl<<endl;
 }
 
 void printVVector(vector<SymbolInfo*> v){
@@ -84,7 +92,7 @@ string getParamList(vector<SymbolInfo*> v){
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
 		builder += v[i]->getVarType() + " " + v[i]->getName();
-		if(i != sz - 1) builder += ",";
+		if(i != sz - 1) builder += ", ";
 	}
 	return builder;
 }
@@ -95,7 +103,7 @@ string* createFunctionDeclaration(string specifier, string funName, vector<Symbo
 		builder += v[i]->getType() + " " + v[i]->getName();
 		if(i != sz - 1) builder += ",";
 	}
-	builder += ");";
+	builder += ");\n";
 	return new string(builder);
 }
 
@@ -120,26 +128,51 @@ string getHigherType(string a, string b){
 
 void printPSS(pair<string*, string*> pss){
 	cout<<*(pss.first)<<" ("<<*(pss.second)<<")"<<endl;
+	// log((*(pss.first)).c_str());
 }
 
-string* createVarDeclaration(string t, vector<SymbolInfo*> v){
-	string builder = t;
+string getStringFromDeclarationList(vector<SymbolInfo*> v){
+	string builder;
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
-		builder+=" ";
 		builder+=v[i]->getName();
 		if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
 		if(i != sz - 1) builder += ", ";
 	}
+	return builder;
+}
+
+
+string* createVarDeclaration(string t, vector<SymbolInfo*> v){
+	string builder = t+" ";
+	builder += getStringFromDeclarationList(v);
+	// int sz = v.size();
+	// for(int i=0; i<sz; i++){
+	// 	builder+=" ";
+	// 	builder+=v[i]->getName();
+	// 	if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
+	// 	if(i != sz - 1) builder += ", ";
+	// }
 	builder+=";";
 	return new string(builder);
 }
+
 
 void printVPSS(vector<pair<string*, string*>*> vpss){
 	int sz = vpss.size();
 	for(int i=0; i<sz; i++){
 		printPSS(*vpss[i]);
 	}
+}
+
+string getStringFromArguments(vector<pair<string*, string*>*> vpss){
+	int sz = vpss.size();
+	string s = "";
+	for(int i=0; i<sz; i++){
+		s += *(vpss[i]->first);
+		if(i != sz - 1) s+=", ";
+	}
+	return s;
 }
 
 vector<pair<string*, string*>*>* addLogicalExpression(vector<pair<string*, string*>*>* vpss, pair<string*, string*>* pss){
@@ -310,13 +343,18 @@ void checkAndValidAssign(string a, string b){
 	normalize(a, b);
 	// warning((a+", "+b).c_str());
 	warning((a+' '+b).c_str());
-	if(a == "void") errorr("CANNOT ASSIGN TO VOID!");
+	if(a == "void") {
+		// errorr("CANNOT ASSIGN TO VOID!");
+		return;
+	}
 	if(b == "void"){
 		errorr("Void function used in expression");
+		return;
 	}
 	if(a != b){
 		// warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
 		if(a == "float" && b == "int") return;
+		if(b == "null") return;
 		errorr("Type Mismatch");
 	}
 }
@@ -335,15 +373,16 @@ void chekAndValidateFunctionSignature(string a, string b){
 	if(b == "null") b = "void";
 	normalize(a, b);
 	if(a != "void" && b == "void"){
-		errorr("FUNCTION IS NOT VOID!");
+		errorr("Type mismatch, function is not void");
 		return;
 	} 
 	if(a == "void" && b!= "void"){
 		errorr("Type mismatch, function is void");
+		return;
 	}
 	if(a != b){
 		if(a == "float" && b == "int") return;
-		errorr("FUNCTION RETURN TYPE MISMATCHED!");
+		errorr("Type mismatch, int function is returning float");
 	}
 }
 
@@ -359,6 +398,14 @@ void checkLogicAndRelExpression(string a, string b){
 	if(a == "void") errorr("void expression in logical or relational operation");
 	else if(b == "void") errorr("void expression in logical or relational operation");
 }
+
+// string getStringFromDeclarationList(vector<SymbolInfo*> vs){
+// 	int sz = vs.size();
+// 	string s = "";
+// 	for(int i=0; i<sz; i++){
+
+// 	}
+// }
 
 
 %}
@@ -388,195 +435,240 @@ void checkLogicAndRelExpression(string a, string b){
 %%
 
 start : program {
-		print("start -> program");
+		print("start: program");
 		$$ = $1;
-		cout<<*($$->first)<<endl;
+		table->printAll(logout);
+		logout<<"Total lines: "<<yylineno<<endl;
+		logout<<"Total errors: "<<errorno<<endl<<endl;
+		// cout<<*($$->first)<<endl;
+		// log((*($$->first) ).c_str());
 		// cout<<"eikhane ken ashe?"<<endl;
 		//write your code in this block in all the similar blocks below
 	}
 	;
 
 program : program unit {
-		print("program -> program unit");
-		string fst = (*($1->first)+"\n"+*($2->first));
+		print("program : program unit");
+		string fst = (*($1->first)+*($2->first));
 		$$ = createPSS(fst, "null");
+		log((*($$->first)).c_str());
 		// cout<<*$$<<endl;
 	}
 	| unit {
-		print("program -> unit");
+		print("program : unit");
 		$$ = $1;
+		log((*($$->first)).c_str());
 		// cout<<*$$<<endl;
 	}
 	;
 	
 unit : var_declaration {
-		print("unit -> var_declaration");
-		$$ = createPSS(*($1), "null");
+		print("unit : var_declaration");
+		$$ = createPSS(*($1) + "\n", "null");
+		log((*($$->first) ).c_str());
 	}
 	| func_declaration {
-		print("unit -> func_declaration");
+		print("unit : func_declaration");
 		$$ = createPSS(*($1), "null");
+		paramList.clear();
+		log((*($$->first)).c_str());
 	} 
 	| func_definition {
-		print("unit -> func_definition");
-		$$ = $1;
+		print("unit : func_definition");
+		$$ = createPSS((*($1)->first+"\n"), "null");
+		log((*($$->first)).c_str());
 	}
 	;
 
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
-		print("func_declaration -> type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
+		print("func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
 		insertFunctionIdToSymbolTable($2, *$1, false, $4);
-		$$ = createFunctionDeclaration(*$1, $2->getName(), *$4);
+		$$ = createFunctionDeclaration(*$1 + "\n", $2->getName(), *$4);
 		// cout<<(*$$)<<endl;
+		log((*$$).c_str());
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON {
-		print("func_declaration -> type_specifier ID LPAREN RPAREN SEMICOLON");
+		print("func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
 		insertFunctionIdToSymbolTable($2, *$1, false, new vector<SymbolInfo*>);
-		$$ = new string((*$1) + " " + ($2->getName()) + "();");
+		$$ = new string((*$1) + " " + ($2->getName()) + "();\n");
 		// cout<<(*$$)<<endl;
+		log((*$$ ).c_str());
 	}
 	;
 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, $4);
 		} compound_statement {
-		warning("func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+		print("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
 		// insertFunctionIdToSymbolTable($2, *$1, true, $4);
 		warning((*($7->second)+", " + *($1)).c_str());
 		chekAndValidateFunctionSignature(*($1), *($7->second));
 		$$ = createPSS((*$1 + " " + $2->getName() + "(" + getParamList(*$4) +")" + *($7->first)), *($7->second));
 		string s = *($$->first); 
 		warning(s.c_str());
+		log((*($$->first) ).c_str());
 	}
 	| type_specifier ID LPAREN RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, new vector<SymbolInfo*>);
 		} compound_statement {
 		// errorr("eikhane ekhane!");
-		warning("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
+		print("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
 		string fst = *$1 + " " + $2->getName() + "()" + *($6->first);
 		chekAndValidateFunctionSignature(*($1), *($6->second));
 		$$ = createPSS(fst, *($6->second));
 		warning((*($6->second)+", " + *($1)).c_str());
-
+		// log((*($$->first)).c_str());
+		log((*($$->first) ).c_str());
 		// cout<<*$$<<endl;
 	}
 	;				
 
 parameter_list  : parameter_list COMMA type_specifier ID {
-		print("parameter_list -> parameter_list COMMA type_specifier ID");
+		print("parameter_list : parameter_list COMMA type_specifier ID");
 		$$ = addParameter($1, $4, *$3);
+		log(getParamList(*$$).c_str());
 	}
 	| parameter_list COMMA type_specifier {
-		print("parameter_list -> parameter_list COMMA type_specifier");
+		print("parameter_list : parameter_list COMMA type_specifier");
 		$$ = addParameter($1, new SymbolInfo("", *$3), *$3);
+		log(getParamList(*$$).c_str());
 	}
 	| type_specifier ID {
-		print("parameter_list -> type_specifier ID");
+		print("parameter_list : type_specifier ID");
 		$$ = addParameter(new vector<SymbolInfo*>, $2, *$1);
+		log(getParamList(*$$).c_str());
 	}
 	| type_specifier {
-		print("parameter_list -> type_specifier");
+		print("parameter_list : type_specifier");
 		$$ = addParameter(new vector<SymbolInfo*>, new SymbolInfo("", (*$1)), *$1);
+		// log((*($$->first)).c_str());
+		log(getParamList(*$$).c_str());
 	}
 	;
 
 compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} statements RCURL {
-		print("compound_statement -> LCURL statements RCURL");
+		print("compound_statement : LCURL statements RCURL");
 		// $$ = new string("{\n"+*($3)+"\n}");
 		// cout<<*$$<<endl;
-		$$ = createPSS(("{\n"+*($3->first)+"\n}").c_str(), *($3->second));
+		$$ = createPSS(("{\n"+*($3->first)+"}\n").c_str(), *($3->second));
+		log((*($$->first)).c_str());
+		table->printAll(logout);
 		table->exitScope();
+		// log((*($$->first)).c_str());
 	}
 	| LCURL RCURL {
-		print("compound_statement -> LCURL RCURL");
-		$$ = createPSS("{}", "void");
+		print("compound_statement : LCURL RCURL");
+		$$ = createPSS("{}\n", "void");
+		// log((*($$->first)).c_str());
+		log((*($$->first)).c_str());
 	}
 	;
 
 var_declaration : type_specifier declaration_list SEMICOLON {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		$$ = createVarDeclaration(*$1, *$2);
 		insertToSymbolTable(*$1, *$2);
 		// cout<<(*$$)<<endl;
+		log((*$$).c_str());
 	}
 	| error declaration_list SEMICOLON {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
-		$$ = createVarDeclaration("void", *$2);
-		insertToSymbolTable("void", *$2);
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
+		$$ = createVarDeclaration("null", *$2);
+		insertToSymbolTable("null", *$2);
 		errorr("type_specifier not specified");
 		// cout<<(*$$)<<endl;
+		log((*$$).c_str());
 	}
 	| error declaration_list error {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		$$ = createVarDeclaration("void", *$2);
 		insertToSymbolTable("void", *$2);
 		errorr("type_specifier not specified, missing semicolon");
 		// cout<<(*$$)<<endl;
+		log((*$$).c_str());
 	}
 	| type_specifier declaration_list error {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		$$ = createVarDeclaration(*$1, *$2);
 		insertToSymbolTable(*$1, *$2);
 		errorr("missing semicolon");
+		log((*$$).c_str());
 		// cout<<(*$$)<<endl;
 	}
 	;
 
-type_specifier	: INT {print("type_specifier -> INT"); $$ = new string("int");}
-	| FLOAT {print("type_specifier -> FLOAT"); $$ = new string("float");}
-	| VOID {print("type_specifier -> VOID"); $$ = new string("void");}
+type_specifier	: INT {print("type_specifier : INT"); $$ = new string("int"); log("int");}
+	| FLOAT {print("type_specifier : FLOAT"); $$ = new string("float"); log("float");}
+	| VOID {print("type_specifier : VOID"); $$ = new string("void"); log("void");}
 	;
 
 declaration_list : declaration_list COMMA ID {
-		print("declaration_list -> declaration_list COMMA ID");
-		$$ = addDeclaration($1, $3, "0");}
+		print("declaration_list : declaration_list COMMA ID");
+		$$ = addDeclaration($1, $3, "0");
+		log(getStringFromDeclarationList(*$$).c_str());
+	}
 	| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD {
-		print("declaration_list -> declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
-		$$ = addDeclaration($1, $3, $5->getName());	}
+		print("declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
+		$$ = addDeclaration($1, $3, $5->getName());	
+		log(getStringFromDeclarationList(*$$).c_str());
+	}
 	| ID 	{	
-		print("declaration_list -> ID");
-		$$ = addDeclaration(new vector<SymbolInfo*>, $1, "0");}
+		print("declaration_list : ID");
+		$$ = addDeclaration(new vector<SymbolInfo*>, $1, "0");
+		log(getStringFromDeclarationList(*$$).c_str());
+	}
 	| ID LTHIRD CONST_INT RTHIRD {	
-		print("declaration_list -> ID LTHIRD CONST_INT RTHIRD");
-		$$ = addDeclaration(new vector<SymbolInfo*>, $1, $3->getName());} 
+		print("declaration_list : ID LTHIRD CONST_INT RTHIRD");
+		$$ = addDeclaration(new vector<SymbolInfo*>, $1, $3->getName());
+		log(getStringFromDeclarationList(*$$).c_str());
+	} 
 	;
 
 statements : statement {
-		print("statements -> statement");
-		$$ = $1;
+		print("statements : statement");
+		$$ = createPSS(*($1->first), *($1->second));
 		// cout<<'\t'<<(*$$)<<endl;
+		// log((*($$->first)).c_str());
+		log((*($$->first)).c_str());
 	}
 	| statements statement {
-		print("statements -> statements statement");
+		print("statements : statements statement");
 		string type = getReturnType(*($1->second), *($2->second));
-		$$ = createPSS(*($1->first)+"\n"+*($2->first), type);
+		$$ = createPSS(*($1->first)+*($2->first), type);
 		// cout<<(*$$)<<endl;
+		// log((*($$->first)).c_str());
+		log((*($$->first)).c_str());
 	}
 	;
 
 statement : var_declaration {
-		print("statement -> var_declaration");
-		$$ = createPSS(*$1, "null");
+		print("statement : var_declaration");
+		$$ = createPSS(*$1+"\n", "null");
+		log((*($$->first)).c_str());
 	}
 	| expression_statement {
-		print("statement -> expression_statement");
-		$$ = createPSS(*($1->first), "null");
+		print("statement : expression_statement");
+		$$ = createPSS(*($1->first) + "\n", "null");
+		log((*($$->first)).c_str());
 	}
 	| compound_statement {
-		print("statement -> compound_statement");
+		print("statement : compound_statement");
 		// $$ = createPSS(*$1, *($1-.second));
-		$$ = $1;
+		$$ = createPSS(*($1->first), *($1->second));
+		log((*($$->first)).c_str());
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement {
-		string s = "for (" + *($3->first) + " " + *($4->first) + " " + *($5->first) + " ) " + *($7->first); 
+		string s = "for (" + *($3->first) + " " + *($4->first) + " " + *($5->first) + " ) " + *($7->first) ; 
 		$$ = createPSS(s, *($7->second));
+		log((*($$->first)).c_str());
 	}
 	| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE {
-		string s = "if (" + *($3->first) +") " + *($5->first);
+		string s = "if (" + *($3->first) +") " + *($5->first)+"\n";
 		$$ = createPSS(s, *($5->second));
+		log((*($$->first)).c_str());
 	}
 	| IF LPAREN expression RPAREN statement ELSE statement {
-		string s = "if ("+*($3->first)+") "+*($5->first) + "\nelse "+ *($7->first);
+		string s = "if ("+*($3->first)+") "+*($5->first) + "\nelse "+ *($7->first) ;
 		string t1 = *($5->second);
 		string t2 = *($7->second);
 		normalize(t1, t2);
@@ -587,177 +679,198 @@ statement : var_declaration {
 			if(t2 == "void") type = t1;
 		}
 		$$ = createPSS(s, type);
+		log((*($$->first)).c_str());
 	}
 	| WHILE LPAREN expression RPAREN statement {
-		print("statement -> WHILE LPAREN expression RPAREN statement");
-		$$ = createPSS("while("+*($3->first)+")", "null");
+		print("statement : WHILE LPAREN expression RPAREN statement");
+		$$ = createPSS("while("+*($3->first)+")\n", "null");
+		log((*($$->first)).c_str());
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON {
 		if(table->lookUp($3->getName()) == nullptr){
 			string s = "Undeclared variable "+$3->getName();
 			errorr(s.c_str());
 		}
-		print("statement -> PRINTLN LPAREN ID RPAREN SEMICOLON");
-		$$ = createPSS("printf("+$3->getName()+");", "null");
+		print("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
+		$$ = createPSS("printf("+$3->getName()+");\n", "null");
+		log((*($$->first)).c_str());
 	}
 	| RETURN expression SEMICOLON {
-		print("statement -> RETURN expression SEMICOLON");
-		$$ = createPSS("return "+*($2->first)+";", *($2->second));
+		print("statement : RETURN expression SEMICOLON");
+		$$ = createPSS("return "+*($2->first)+";\n", *($2->second));
+		log((*($$->first)).c_str());
 	}
 ;
 
 expression_statement : SEMICOLON	{
+		print("expression_statement : SEMICOLON");
 		$$ = createPSS(";", "VOID");
+		log((*($$->first)).c_str());
 	}		
 	| expression SEMICOLON {
+		print("expression_statement : expression SEMICOLON");
 		$$ = createPSS (*($1->first) + ";", *($1->second));
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 variable : ID 	{
-		print("variable -> ID");
+		print("variable : ID");
 		string type = checkAndValidateID($1->getName(), "0", "NOT_ARRAY");
 		$$ = createPSS ($1->getName(), type);
+		log((*($$->first)).c_str());
 	}
 	| ID LTHIRD expression RTHIRD {
-		print("variable -> ID LTHIRD expression RTHIRD");
+		print("variable : ID LTHIRD expression RTHIRD");
 		string type = checkAndValidateID($1->getName(), *($3->first), *($3->second));
 		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", type);
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 expression : logic_expression {
-		print("expression -> logic_expression");
-		$$ = $1;
-		printPSS(*$$);
+		print("expression : logic_expression");
+		$$ = createPSS(*($1->first) , *($1->second));
+		log((*($$->first)).c_str());
 	}
 	| variable ASSIGNOP logic_expression {
 		// cout<<"\t\t\t\teikhane keno ashe?"<<endl;
 		//TODO eikhane onek kahini kora lagbe 
-		print("expression -> variable ASSIGNOP logic_expression");
+		print("expression : variable ASSIGNOP logic_expression");
 		checkAndValidAssign(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + " = " + *($3->first), *($1->second));
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	} 	
 ;
 
 logic_expression : rel_expression {
-		print("logic_expression -> rel_expression");
+		print("logic_expression : rel_expression");
 		$$ = $1;
+		log((*($$->first)).c_str());
 	}
 	| rel_expression LOGICOP rel_expression {
 		print("rel_expression LOGICOP rel_expression");
 		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) +  " " + $2->getName() + " " + *($3->first), "int");
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	} 	
 ;
 
 rel_expression	: simple_expression {
-		print("rel_expression -> simple_expression");
+		print("rel_expression : simple_expression");
 		$$ = $1;
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 	| simple_expression RELOP simple_expression	{
-		print("rel_expression -> simple_expression RELOP simple_expression");
+		print("rel_expression : simple_expression RELOP simple_expression");
 		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + " " + $2->getName() + " " + *($3->first), "int");
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 simple_expression : term {
-		print("simple_expression -> term");
+		print("simple_expression : term");
 		$$ = $1;
+		log((*($$->first)).c_str());
 	}
 	| simple_expression ADDOP term {
-		print("simple_expression -> simple_expression ADDOP term");
+		print("simple_expression : simple_expression ADDOP term");
 		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), getHigherType(*($1->second), *($3->second)));
-		// printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 term :	unary_expression {
-		print("term -> unary_expression");
+		print("term : unary_expression");
 		$$ = $1;
+		log((*($$->first)).c_str());
 	}
 	| term MULOP unary_expression {
-		print("term -> MULOP unary_expression");
+		print("term : MULOP unary_expression");
 		checkModulusOperator(*($1->second), $2->getName(), *($3->second), *($3->first));
 		string type = $2->getName() == "%" ? "int" : getHigherType(*($1->second), *($3->second));
 		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), type);
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 unary_expression : ADDOP unary_expression {
-		print("unary_expression -> ADDOP unary_expression");
+		print("unary_expression : ADDOP unary_expression");
 		$$ = createPSS ($1->getName() + "" +(*($2->first)), *($2->second));
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 	| NOT unary_expression {
-		print("unary_expression -> NOT unary_expression");
+		print("unary_expression : NOT unary_expression");
 		$$ = createPSS ("! "+(*($2->first)),"int");
-		// printPSS(*$$);
+		// log((*($$->first)).c_str());
+		log((*($$->first)).c_str());
 	}
 	| factor {
-		print("unary_expression -> factor");
+		print("unary_expression : factor");
 		$$ = $1;
+		log((*($$->first)).c_str());
 	}
 ;
 
 factor	: variable {
-		print("factor -> variable");
+		print("factor : variable");
 		$$ = $1;
+		log((*($$->first)).c_str());
 	}
 	| ID LPAREN argument_list RPAREN { //TODO TODO
-		print("factor -> ID LPAREN argument_list RPAREN");
+		print("factor : ID LPAREN argument_list RPAREN");
 		validateAndCreateFactor($1, *$3);
 		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", getIdVarType($1->getName()));
+		log((*($$->first)).c_str());
 	}
 	| LPAREN expression RPAREN {
-		print("factor -> LPAREN expression RPAREN");
+		print("factor : LPAREN expression RPAREN");
 		$$ = createPSS ("("+*($2->first)+")",*($2->second));
-		// printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 	| CONST_INT {
-		print("factor -> CONST_INT");
+		print("factor : CONST_INT");
 		$$ = createPSS ($1->getName(),"CONST_INT");
+		log((*($$->first)).c_str());
 	}
 	| CONST_FLOAT {
-		print("factor -> CONST_FLOAT");
+		print("factor : CONST_FLOAT");
 		$$ = createPSS ($1->getName(), "CONST_FLOAT");
+		log((*($$->first)).c_str());
 	}
 	| variable INCOP {
-		print("factor -> variable INCOP");
+		print("factor : variable INCOP");
 		$$ = createPSS (*($1->first) + "++", *($1->second));
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 	| variable DECOP {
-		print("factor -> variable DECOP");
+		print("factor : variable DECOP");
 		$$ = createPSS (*($1->first) + "--", *($1->second));
-		printPSS(*$$);
+		log((*($$->first)).c_str());
 	}
 ;
 
 argument_list : arguments {
-		print("arguments_list -> arguments");
+		print("arguments_list : arguments");
 		$$ = $1;
+		log(getStringFromArguments(*$$).c_str());
 	}
 	| {
 		$$ = new vector<pair<string*, string*>*>;
+		log(getStringFromArguments(*$$).c_str());
 	}
 ;
 
 arguments : arguments COMMA logic_expression {
-		print("arguments -> arguments COMMA logic_expression");
+		print("arguments : arguments COMMA logic_expression");
 		$$ = addLogicalExpression($1, $3);
+		log(getStringFromArguments(*$$).c_str());
 	}
 	| logic_expression {
-		print("arguments -> logic_expression");
+		print("arguments : logic_expression");
 		$$ = addLogicalExpression(new vector<pair<string*, string*>*>, $1);
+		log(getStringFromArguments(*$$).c_str());
 	}
 ;
 
@@ -766,6 +879,7 @@ int main(int argc,char *argv[])
 {
 	table = new SymbolTable(7);
 	errout.open("error.txt");
+	logout.open("log.txt");
 	yyparse();
 	return 0;
 }

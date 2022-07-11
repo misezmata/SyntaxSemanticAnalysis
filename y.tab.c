@@ -85,6 +85,8 @@ SymbolTable *table;
 string builder;
 vector<pair<string, string> > paramList;
 ofstream errout;
+ofstream logout;
+int errorno = 0;
 
 void yyerror(char *s)
 {
@@ -92,7 +94,9 @@ void yyerror(char *s)
 }
 
 void errorr(const char *s){
-	errout<<"Erro at line "<<yylineno<<": "<<s<<"\n"<<endl;
+	errorno++;
+	errout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
+	logout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
 	printf("\033[1;31mError at line: %d:  %s \033[0m\n",yylineno, s);
 }
 
@@ -102,6 +106,10 @@ void warning(const char *s){
 
 void print(string s){
 	cout<<"LINE "<<yylineno<<": "<<s<<endl;
+	logout<<"LINE "<<yylineno<<": "<<s<<endl<<endl;
+}
+void log(const char *s){
+	logout<<s<<endl<<endl;
 }
 
 void printVVector(vector<SymbolInfo*> v){
@@ -154,7 +162,7 @@ string getParamList(vector<SymbolInfo*> v){
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
 		builder += v[i]->getVarType() + " " + v[i]->getName();
-		if(i != sz - 1) builder += ",";
+		if(i != sz - 1) builder += ", ";
 	}
 	return builder;
 }
@@ -165,7 +173,7 @@ string* createFunctionDeclaration(string specifier, string funName, vector<Symbo
 		builder += v[i]->getType() + " " + v[i]->getName();
 		if(i != sz - 1) builder += ",";
 	}
-	builder += ");";
+	builder += ");\n";
 	return new string(builder);
 }
 
@@ -190,26 +198,51 @@ string getHigherType(string a, string b){
 
 void printPSS(pair<string*, string*> pss){
 	cout<<*(pss.first)<<" ("<<*(pss.second)<<")"<<endl;
+	// log((*(pss.first)).c_str());
 }
 
-string* createVarDeclaration(string t, vector<SymbolInfo*> v){
-	string builder = t;
+string getStringFromDeclarationList(vector<SymbolInfo*> v){
+	string builder;
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
-		builder+=" ";
 		builder+=v[i]->getName();
 		if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
 		if(i != sz - 1) builder += ", ";
 	}
+	return builder;
+}
+
+
+string* createVarDeclaration(string t, vector<SymbolInfo*> v){
+	string builder = t+" ";
+	builder += getStringFromDeclarationList(v);
+	// int sz = v.size();
+	// for(int i=0; i<sz; i++){
+	// 	builder+=" ";
+	// 	builder+=v[i]->getName();
+	// 	if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
+	// 	if(i != sz - 1) builder += ", ";
+	// }
 	builder+=";";
 	return new string(builder);
 }
+
 
 void printVPSS(vector<pair<string*, string*>*> vpss){
 	int sz = vpss.size();
 	for(int i=0; i<sz; i++){
 		printPSS(*vpss[i]);
 	}
+}
+
+string getStringFromArguments(vector<pair<string*, string*>*> vpss){
+	int sz = vpss.size();
+	string s = "";
+	for(int i=0; i<sz; i++){
+		s += *(vpss[i]->first);
+		if(i != sz - 1) s+=", ";
+	}
+	return s;
 }
 
 vector<pair<string*, string*>*>* addLogicalExpression(vector<pair<string*, string*>*>* vpss, pair<string*, string*>* pss){
@@ -380,13 +413,18 @@ void checkAndValidAssign(string a, string b){
 	normalize(a, b);
 	// warning((a+", "+b).c_str());
 	warning((a+' '+b).c_str());
-	if(a == "void") errorr("CANNOT ASSIGN TO VOID!");
+	if(a == "void") {
+		// errorr("CANNOT ASSIGN TO VOID!");
+		return;
+	}
 	if(b == "void"){
 		errorr("Void function used in expression");
+		return;
 	}
 	if(a != b){
 		// warning(("Trying to assign "+b+" in "+a+" (potential precision loss)").c_str());
 		if(a == "float" && b == "int") return;
+		if(b == "null") return;
 		errorr("Type Mismatch");
 	}
 }
@@ -405,15 +443,16 @@ void chekAndValidateFunctionSignature(string a, string b){
 	if(b == "null") b = "void";
 	normalize(a, b);
 	if(a != "void" && b == "void"){
-		errorr("FUNCTION IS NOT VOID!");
+		errorr("Type mismatch, function is not void");
 		return;
 	} 
 	if(a == "void" && b!= "void"){
 		errorr("Type mismatch, function is void");
+		return;
 	}
 	if(a != b){
 		if(a == "float" && b == "int") return;
-		errorr("FUNCTION RETURN TYPE MISMATCHED!");
+		errorr("Type mismatch, int function is returning float");
 	}
 }
 
@@ -430,9 +469,17 @@ void checkLogicAndRelExpression(string a, string b){
 	else if(b == "void") errorr("void expression in logical or relational operation");
 }
 
+// string getStringFromDeclarationList(vector<SymbolInfo*> vs){
+// 	int sz = vs.size();
+// 	string s = "";
+// 	for(int i=0; i<sz; i++){
+
+// 	}
+// }
 
 
-#line 436 "y.tab.c"
+
+#line 483 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -569,7 +616,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 366 "1805090.y"
+#line 413 "1805090.y"
 
 	int iint; 
 	double ddouble; 
@@ -580,7 +627,7 @@ union YYSTYPE
 	pair<string*, string*>* pss;
 	vector<pair<string*, string*>*>* vss;
 
-#line 584 "y.tab.c"
+#line 631 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -1059,14 +1106,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   390,   390,   399,   405,   412,   416,   420,   426,   432,
-     440,   440,   451,   451,   465,   469,   473,   477,   483,   483,
-     490,   496,   502,   509,   516,   525,   526,   527,   530,   533,
-     536,   539,   544,   549,   557,   561,   565,   570,   574,   578,
-     591,   595,   603,   609,   612,   618,   623,   631,   636,   646,
-     650,   658,   663,   671,   675,   682,   686,   695,   700,   705,
-     711,   715,   720,   725,   729,   733,   738,   745,   749,   754,
-     758
+       0,   437,   437,   450,   457,   465,   470,   476,   483,   490,
+     499,   499,   511,   511,   526,   531,   536,   541,   549,   549,
+     559,   567,   574,   582,   590,   600,   601,   602,   605,   610,
+     615,   620,   627,   634,   644,   649,   654,   660,   665,   670,
+     684,   689,   698,   705,   710,   717,   723,   731,   736,   746,
+     751,   759,   764,   772,   777,   784,   789,   798,   803,   809,
+     816,   821,   827,   832,   837,   842,   847,   854,   859,   865,
+     870
 };
 #endif
 
@@ -1720,363 +1767,408 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* start: program  */
-#line 390 "1805090.y"
+#line 437 "1805090.y"
                 {
-		print("start -> program");
+		print("start: program");
 		(yyval.pss) = (yyvsp[0].pss);
-		cout<<*((yyval.pss)->first)<<endl;
+		table->printAll(logout);
+		logout<<"Total lines: "<<yylineno<<endl;
+		logout<<"Total errors: "<<errorno<<endl<<endl;
+		// cout<<*($$->first)<<endl;
+		// log((*($$->first) ).c_str());
 		// cout<<"eikhane ken ashe?"<<endl;
 		//write your code in this block in all the similar blocks below
 	}
-#line 1732 "y.tab.c"
+#line 1783 "y.tab.c"
     break;
 
   case 3: /* program: program unit  */
-#line 399 "1805090.y"
+#line 450 "1805090.y"
                        {
-		print("program -> program unit");
-		string fst = (*((yyvsp[-1].pss)->first)+"\n"+*((yyvsp[0].pss)->first));
+		print("program : program unit");
+		string fst = (*((yyvsp[-1].pss)->first)+*((yyvsp[0].pss)->first));
 		(yyval.pss) = createPSS(fst, "null");
+		log((*((yyval.pss)->first)).c_str());
 		// cout<<*$$<<endl;
 	}
-#line 1743 "y.tab.c"
+#line 1795 "y.tab.c"
     break;
 
   case 4: /* program: unit  */
-#line 405 "1805090.y"
+#line 457 "1805090.y"
                {
-		print("program -> unit");
+		print("program : unit");
 		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
 		// cout<<*$$<<endl;
 	}
-#line 1753 "y.tab.c"
+#line 1806 "y.tab.c"
     break;
 
   case 5: /* unit: var_declaration  */
-#line 412 "1805090.y"
+#line 465 "1805090.y"
                        {
-		print("unit -> var_declaration");
-		(yyval.pss) = createPSS(*((yyvsp[0].sstring)), "null");
+		print("unit : var_declaration");
+		(yyval.pss) = createPSS(*((yyvsp[0].sstring)) + "\n", "null");
+		log((*((yyval.pss)->first) ).c_str());
 	}
-#line 1762 "y.tab.c"
+#line 1816 "y.tab.c"
     break;
 
   case 6: /* unit: func_declaration  */
-#line 416 "1805090.y"
+#line 470 "1805090.y"
                            {
-		print("unit -> func_declaration");
+		print("unit : func_declaration");
 		(yyval.pss) = createPSS(*((yyvsp[0].sstring)), "null");
+		paramList.clear();
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 1771 "y.tab.c"
+#line 1827 "y.tab.c"
     break;
 
   case 7: /* unit: func_definition  */
-#line 420 "1805090.y"
+#line 476 "1805090.y"
                           {
-		print("unit -> func_definition");
-		(yyval.pss) = (yyvsp[0].pss);
+		print("unit : func_definition");
+		(yyval.pss) = createPSS((*((yyvsp[0].pss))->first+"\n"), "null");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 1780 "y.tab.c"
+#line 1837 "y.tab.c"
     break;
 
   case 8: /* func_declaration: type_specifier ID LPAREN parameter_list RPAREN SEMICOLON  */
-#line 426 "1805090.y"
+#line 483 "1805090.y"
                                                                             {
-		print("func_declaration -> type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
+		print("func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
 		insertFunctionIdToSymbolTable((yyvsp[-4].si), *(yyvsp[-5].sstring), false, (yyvsp[-2].vvector));
-		(yyval.sstring) = createFunctionDeclaration(*(yyvsp[-5].sstring), (yyvsp[-4].si)->getName(), *(yyvsp[-2].vvector));
+		(yyval.sstring) = createFunctionDeclaration(*(yyvsp[-5].sstring) + "\n", (yyvsp[-4].si)->getName(), *(yyvsp[-2].vvector));
 		// cout<<(*$$)<<endl;
+		log((*(yyval.sstring)).c_str());
 	}
-#line 1791 "y.tab.c"
+#line 1849 "y.tab.c"
     break;
 
   case 9: /* func_declaration: type_specifier ID LPAREN RPAREN SEMICOLON  */
-#line 432 "1805090.y"
+#line 490 "1805090.y"
                                                     {
-		print("func_declaration -> type_specifier ID LPAREN RPAREN SEMICOLON");
+		print("func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
 		insertFunctionIdToSymbolTable((yyvsp[-3].si), *(yyvsp[-4].sstring), false, new vector<SymbolInfo*>);
-		(yyval.sstring) = new string((*(yyvsp[-4].sstring)) + " " + ((yyvsp[-3].si)->getName()) + "();");
+		(yyval.sstring) = new string((*(yyvsp[-4].sstring)) + " " + ((yyvsp[-3].si)->getName()) + "();\n");
 		// cout<<(*$$)<<endl;
+		log((*(yyval.sstring) ).c_str());
 	}
-#line 1802 "y.tab.c"
+#line 1861 "y.tab.c"
     break;
 
   case 10: /* $@1: %empty  */
-#line 440 "1805090.y"
+#line 499 "1805090.y"
                                                                  {
 			insertFunctionIdToSymbolTable((yyvsp[-3].si), *(yyvsp[-4].sstring), true, (yyvsp[-1].vvector));
 		}
-#line 1810 "y.tab.c"
+#line 1869 "y.tab.c"
     break;
 
   case 11: /* func_definition: type_specifier ID LPAREN parameter_list RPAREN $@1 compound_statement  */
-#line 442 "1805090.y"
+#line 501 "1805090.y"
                                      {
-		warning("func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+		print("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
 		// insertFunctionIdToSymbolTable($2, *$1, true, $4);
 		warning((*((yyvsp[0].pss)->second)+", " + *((yyvsp[-6].sstring))).c_str());
 		chekAndValidateFunctionSignature(*((yyvsp[-6].sstring)), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS((*(yyvsp[-6].sstring) + " " + (yyvsp[-5].si)->getName() + "(" + getParamList(*(yyvsp[-3].vvector)) +")" + *((yyvsp[0].pss)->first)), *((yyvsp[0].pss)->second));
 		string s = *((yyval.pss)->first); 
 		warning(s.c_str());
+		log((*((yyval.pss)->first) ).c_str());
 	}
-#line 1824 "y.tab.c"
+#line 1884 "y.tab.c"
     break;
 
   case 12: /* $@2: %empty  */
-#line 451 "1805090.y"
+#line 511 "1805090.y"
                                           {
 			insertFunctionIdToSymbolTable((yyvsp[-2].si), *(yyvsp[-3].sstring), true, new vector<SymbolInfo*>);
 		}
-#line 1832 "y.tab.c"
+#line 1892 "y.tab.c"
     break;
 
   case 13: /* func_definition: type_specifier ID LPAREN RPAREN $@2 compound_statement  */
-#line 453 "1805090.y"
+#line 513 "1805090.y"
                                      {
 		// errorr("eikhane ekhane!");
-		warning("func_definition -> type_specifier ID LPAREN RPAREN compound_statement");
+		print("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
 		string fst = *(yyvsp[-5].sstring) + " " + (yyvsp[-4].si)->getName() + "()" + *((yyvsp[0].pss)->first);
 		chekAndValidateFunctionSignature(*((yyvsp[-5].sstring)), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS(fst, *((yyvsp[0].pss)->second));
 		warning((*((yyvsp[0].pss)->second)+", " + *((yyvsp[-5].sstring))).c_str());
-
+		// log((*($$->first)).c_str());
+		log((*((yyval.pss)->first) ).c_str());
 		// cout<<*$$<<endl;
 	}
-#line 1847 "y.tab.c"
+#line 1908 "y.tab.c"
     break;
 
   case 14: /* parameter_list: parameter_list COMMA type_specifier ID  */
-#line 465 "1805090.y"
+#line 526 "1805090.y"
                                                          {
-		print("parameter_list -> parameter_list COMMA type_specifier ID");
+		print("parameter_list : parameter_list COMMA type_specifier ID");
 		(yyval.vvector) = addParameter((yyvsp[-3].vvector), (yyvsp[0].si), *(yyvsp[-1].sstring));
+		log(getParamList(*(yyval.vvector)).c_str());
 	}
-#line 1856 "y.tab.c"
+#line 1918 "y.tab.c"
     break;
 
   case 15: /* parameter_list: parameter_list COMMA type_specifier  */
-#line 469 "1805090.y"
+#line 531 "1805090.y"
                                               {
-		print("parameter_list -> parameter_list COMMA type_specifier");
+		print("parameter_list : parameter_list COMMA type_specifier");
 		(yyval.vvector) = addParameter((yyvsp[-2].vvector), new SymbolInfo("", *(yyvsp[0].sstring)), *(yyvsp[0].sstring));
+		log(getParamList(*(yyval.vvector)).c_str());
 	}
-#line 1865 "y.tab.c"
+#line 1928 "y.tab.c"
     break;
 
   case 16: /* parameter_list: type_specifier ID  */
-#line 473 "1805090.y"
+#line 536 "1805090.y"
                             {
-		print("parameter_list -> type_specifier ID");
+		print("parameter_list : type_specifier ID");
 		(yyval.vvector) = addParameter(new vector<SymbolInfo*>, (yyvsp[0].si), *(yyvsp[-1].sstring));
+		log(getParamList(*(yyval.vvector)).c_str());
 	}
-#line 1874 "y.tab.c"
+#line 1938 "y.tab.c"
     break;
 
   case 17: /* parameter_list: type_specifier  */
-#line 477 "1805090.y"
+#line 541 "1805090.y"
                          {
-		print("parameter_list -> type_specifier");
+		print("parameter_list : type_specifier");
 		(yyval.vvector) = addParameter(new vector<SymbolInfo*>, new SymbolInfo("", (*(yyvsp[0].sstring))), *(yyvsp[0].sstring));
+		// log((*($$->first)).c_str());
+		log(getParamList(*(yyval.vvector)).c_str());
 	}
-#line 1883 "y.tab.c"
+#line 1949 "y.tab.c"
     break;
 
   case 18: /* $@3: %empty  */
-#line 483 "1805090.y"
+#line 549 "1805090.y"
                            {table->enterScope(); addParamsToScopeTable();}
-#line 1889 "y.tab.c"
+#line 1955 "y.tab.c"
     break;
 
   case 19: /* compound_statement: LCURL $@3 statements RCURL  */
-#line 483 "1805090.y"
+#line 549 "1805090.y"
                                                                                             {
-		print("compound_statement -> LCURL statements RCURL");
+		print("compound_statement : LCURL statements RCURL");
 		// $$ = new string("{\n"+*($3)+"\n}");
 		// cout<<*$$<<endl;
-		(yyval.pss) = createPSS(("{\n"+*((yyvsp[-1].pss)->first)+"\n}").c_str(), *((yyvsp[-1].pss)->second));
+		(yyval.pss) = createPSS(("{\n"+*((yyvsp[-1].pss)->first)+"}\n").c_str(), *((yyvsp[-1].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
+		table->printAll(logout);
 		table->exitScope();
+		// log((*($$->first)).c_str());
 	}
-#line 1901 "y.tab.c"
+#line 1970 "y.tab.c"
     break;
 
   case 20: /* compound_statement: LCURL RCURL  */
-#line 490 "1805090.y"
+#line 559 "1805090.y"
                       {
-		print("compound_statement -> LCURL RCURL");
-		(yyval.pss) = createPSS("{}", "void");
+		print("compound_statement : LCURL RCURL");
+		(yyval.pss) = createPSS("{}\n", "void");
+		// log((*($$->first)).c_str());
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 1910 "y.tab.c"
+#line 1981 "y.tab.c"
     break;
 
   case 21: /* var_declaration: type_specifier declaration_list SEMICOLON  */
-#line 496 "1805090.y"
+#line 567 "1805090.y"
                                                             {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		(yyval.sstring) = createVarDeclaration(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
 		insertToSymbolTable(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
 		// cout<<(*$$)<<endl;
+		log((*(yyval.sstring)).c_str());
 	}
-#line 1921 "y.tab.c"
+#line 1993 "y.tab.c"
     break;
 
   case 22: /* var_declaration: error declaration_list SEMICOLON  */
-#line 502 "1805090.y"
+#line 574 "1805090.y"
                                            {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
-		(yyval.sstring) = createVarDeclaration("void", *(yyvsp[-1].vvector));
-		insertToSymbolTable("void", *(yyvsp[-1].vvector));
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
+		(yyval.sstring) = createVarDeclaration("null", *(yyvsp[-1].vvector));
+		insertToSymbolTable("null", *(yyvsp[-1].vvector));
 		errorr("type_specifier not specified");
 		// cout<<(*$$)<<endl;
+		log((*(yyval.sstring)).c_str());
 	}
-#line 1933 "y.tab.c"
+#line 2006 "y.tab.c"
     break;
 
   case 23: /* var_declaration: error declaration_list error  */
-#line 509 "1805090.y"
+#line 582 "1805090.y"
                                        {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		(yyval.sstring) = createVarDeclaration("void", *(yyvsp[-1].vvector));
 		insertToSymbolTable("void", *(yyvsp[-1].vvector));
 		errorr("type_specifier not specified, missing semicolon");
 		// cout<<(*$$)<<endl;
+		log((*(yyval.sstring)).c_str());
 	}
-#line 1945 "y.tab.c"
+#line 2019 "y.tab.c"
     break;
 
   case 24: /* var_declaration: type_specifier declaration_list error  */
-#line 516 "1805090.y"
+#line 590 "1805090.y"
                                                 {
-		print("var_declaration -> type_specifier declaration_list SEMICOLON");
+		print("var_declaration : type_specifier declaration_list SEMICOLON");
 		(yyval.sstring) = createVarDeclaration(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
 		insertToSymbolTable(*(yyvsp[-2].sstring), *(yyvsp[-1].vvector));
 		errorr("missing semicolon");
+		log((*(yyval.sstring)).c_str());
 		// cout<<(*$$)<<endl;
 	}
-#line 1957 "y.tab.c"
+#line 2032 "y.tab.c"
     break;
 
   case 25: /* type_specifier: INT  */
-#line 525 "1805090.y"
-                      {print("type_specifier -> INT"); (yyval.sstring) = new string("int");}
-#line 1963 "y.tab.c"
+#line 600 "1805090.y"
+                      {print("type_specifier : INT"); (yyval.sstring) = new string("int"); log("int");}
+#line 2038 "y.tab.c"
     break;
 
   case 26: /* type_specifier: FLOAT  */
-#line 526 "1805090.y"
-                {print("type_specifier -> FLOAT"); (yyval.sstring) = new string("float");}
-#line 1969 "y.tab.c"
+#line 601 "1805090.y"
+                {print("type_specifier : FLOAT"); (yyval.sstring) = new string("float"); log("float");}
+#line 2044 "y.tab.c"
     break;
 
   case 27: /* type_specifier: VOID  */
-#line 527 "1805090.y"
-               {print("type_specifier -> VOID"); (yyval.sstring) = new string("void");}
-#line 1975 "y.tab.c"
+#line 602 "1805090.y"
+               {print("type_specifier : VOID"); (yyval.sstring) = new string("void"); log("void");}
+#line 2050 "y.tab.c"
     break;
 
   case 28: /* declaration_list: declaration_list COMMA ID  */
-#line 530 "1805090.y"
+#line 605 "1805090.y"
                                              {
-		print("declaration_list -> declaration_list COMMA ID");
-		(yyval.vvector) = addDeclaration((yyvsp[-2].vvector), (yyvsp[0].si), "0");}
-#line 1983 "y.tab.c"
+		print("declaration_list : declaration_list COMMA ID");
+		(yyval.vvector) = addDeclaration((yyvsp[-2].vvector), (yyvsp[0].si), "0");
+		log(getStringFromDeclarationList(*(yyval.vvector)).c_str());
+	}
+#line 2060 "y.tab.c"
     break;
 
   case 29: /* declaration_list: declaration_list COMMA ID LTHIRD CONST_INT RTHIRD  */
-#line 533 "1805090.y"
+#line 610 "1805090.y"
                                                             {
-		print("declaration_list -> declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
-		(yyval.vvector) = addDeclaration((yyvsp[-5].vvector), (yyvsp[-3].si), (yyvsp[-1].si)->getName());	}
-#line 1991 "y.tab.c"
+		print("declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
+		(yyval.vvector) = addDeclaration((yyvsp[-5].vvector), (yyvsp[-3].si), (yyvsp[-1].si)->getName());	
+		log(getStringFromDeclarationList(*(yyval.vvector)).c_str());
+	}
+#line 2070 "y.tab.c"
     break;
 
   case 30: /* declaration_list: ID  */
-#line 536 "1805090.y"
+#line 615 "1805090.y"
                 {	
-		print("declaration_list -> ID");
-		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[0].si), "0");}
-#line 1999 "y.tab.c"
+		print("declaration_list : ID");
+		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[0].si), "0");
+		log(getStringFromDeclarationList(*(yyval.vvector)).c_str());
+	}
+#line 2080 "y.tab.c"
     break;
 
   case 31: /* declaration_list: ID LTHIRD CONST_INT RTHIRD  */
-#line 539 "1805090.y"
+#line 620 "1805090.y"
                                      {	
-		print("declaration_list -> ID LTHIRD CONST_INT RTHIRD");
-		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[-3].si), (yyvsp[-1].si)->getName());}
-#line 2007 "y.tab.c"
+		print("declaration_list : ID LTHIRD CONST_INT RTHIRD");
+		(yyval.vvector) = addDeclaration(new vector<SymbolInfo*>, (yyvsp[-3].si), (yyvsp[-1].si)->getName());
+		log(getStringFromDeclarationList(*(yyval.vvector)).c_str());
+	}
+#line 2090 "y.tab.c"
     break;
 
   case 32: /* statements: statement  */
-#line 544 "1805090.y"
+#line 627 "1805090.y"
                        {
-		print("statements -> statement");
-		(yyval.pss) = (yyvsp[0].pss);
+		print("statements : statement");
+		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first), *((yyvsp[0].pss)->second));
 		// cout<<'\t'<<(*$$)<<endl;
+		// log((*($$->first)).c_str());
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2017 "y.tab.c"
+#line 2102 "y.tab.c"
     break;
 
   case 33: /* statements: statements statement  */
-#line 549 "1805090.y"
+#line 634 "1805090.y"
                                {
-		print("statements -> statements statement");
+		print("statements : statements statement");
 		string type = getReturnType(*((yyvsp[-1].pss)->second), *((yyvsp[0].pss)->second));
-		(yyval.pss) = createPSS(*((yyvsp[-1].pss)->first)+"\n"+*((yyvsp[0].pss)->first), type);
+		(yyval.pss) = createPSS(*((yyvsp[-1].pss)->first)+*((yyvsp[0].pss)->first), type);
 		// cout<<(*$$)<<endl;
+		// log((*($$->first)).c_str());
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2028 "y.tab.c"
+#line 2115 "y.tab.c"
     break;
 
   case 34: /* statement: var_declaration  */
-#line 557 "1805090.y"
+#line 644 "1805090.y"
                             {
-		print("statement -> var_declaration");
-		(yyval.pss) = createPSS(*(yyvsp[0].sstring), "null");
+		print("statement : var_declaration");
+		(yyval.pss) = createPSS(*(yyvsp[0].sstring)+"\n", "null");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2037 "y.tab.c"
+#line 2125 "y.tab.c"
     break;
 
   case 35: /* statement: expression_statement  */
-#line 561 "1805090.y"
+#line 649 "1805090.y"
                                {
-		print("statement -> expression_statement");
-		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first), "null");
+		print("statement : expression_statement");
+		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first) + "\n", "null");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2046 "y.tab.c"
+#line 2135 "y.tab.c"
     break;
 
   case 36: /* statement: compound_statement  */
-#line 565 "1805090.y"
+#line 654 "1805090.y"
                              {
-		print("statement -> compound_statement");
+		print("statement : compound_statement");
 		// $$ = createPSS(*$1, *($1-.second));
-		(yyval.pss) = (yyvsp[0].pss);
+		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first), *((yyvsp[0].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2056 "y.tab.c"
+#line 2146 "y.tab.c"
     break;
 
   case 37: /* statement: FOR LPAREN expression_statement expression_statement expression RPAREN statement  */
-#line 570 "1805090.y"
+#line 660 "1805090.y"
                                                                                            {
-		string s = "for (" + *((yyvsp[-4].pss)->first) + " " + *((yyvsp[-3].pss)->first) + " " + *((yyvsp[-2].pss)->first) + " ) " + *((yyvsp[0].pss)->first); 
+		string s = "for (" + *((yyvsp[-4].pss)->first) + " " + *((yyvsp[-3].pss)->first) + " " + *((yyvsp[-2].pss)->first) + " ) " + *((yyvsp[0].pss)->first) ; 
 		(yyval.pss) = createPSS(s, *((yyvsp[0].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2065 "y.tab.c"
+#line 2156 "y.tab.c"
     break;
 
   case 38: /* statement: IF LPAREN expression RPAREN statement  */
-#line 574 "1805090.y"
+#line 665 "1805090.y"
                                                                       {
-		string s = "if (" + *((yyvsp[-2].pss)->first) +") " + *((yyvsp[0].pss)->first);
+		string s = "if (" + *((yyvsp[-2].pss)->first) +") " + *((yyvsp[0].pss)->first)+"\n";
 		(yyval.pss) = createPSS(s, *((yyvsp[0].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2074 "y.tab.c"
+#line 2166 "y.tab.c"
     break;
 
   case 39: /* statement: IF LPAREN expression RPAREN statement ELSE statement  */
-#line 578 "1805090.y"
+#line 670 "1805090.y"
                                                                {
-		string s = "if ("+*((yyvsp[-4].pss)->first)+") "+*((yyvsp[-2].pss)->first) + "\nelse "+ *((yyvsp[0].pss)->first);
+		string s = "if ("+*((yyvsp[-4].pss)->first)+") "+*((yyvsp[-2].pss)->first) + "\nelse "+ *((yyvsp[0].pss)->first) ;
 		string t1 = *((yyvsp[-2].pss)->second);
 		string t2 = *((yyvsp[0].pss)->second);
 		normalize(t1, t2);
@@ -2087,316 +2179,337 @@ yyreduce:
 			if(t2 == "void") type = t1;
 		}
 		(yyval.pss) = createPSS(s, type);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2092 "y.tab.c"
+#line 2185 "y.tab.c"
     break;
 
   case 40: /* statement: WHILE LPAREN expression RPAREN statement  */
-#line 591 "1805090.y"
+#line 684 "1805090.y"
                                                    {
-		print("statement -> WHILE LPAREN expression RPAREN statement");
-		(yyval.pss) = createPSS("while("+*((yyvsp[-2].pss)->first)+")", "null");
+		print("statement : WHILE LPAREN expression RPAREN statement");
+		(yyval.pss) = createPSS("while("+*((yyvsp[-2].pss)->first)+")\n", "null");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2101 "y.tab.c"
+#line 2195 "y.tab.c"
     break;
 
   case 41: /* statement: PRINTLN LPAREN ID RPAREN SEMICOLON  */
-#line 595 "1805090.y"
+#line 689 "1805090.y"
                                              {
 		if(table->lookUp((yyvsp[-2].si)->getName()) == nullptr){
 			string s = "Undeclared variable "+(yyvsp[-2].si)->getName();
 			errorr(s.c_str());
 		}
-		print("statement -> PRINTLN LPAREN ID RPAREN SEMICOLON");
-		(yyval.pss) = createPSS("printf("+(yyvsp[-2].si)->getName()+");", "null");
+		print("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
+		(yyval.pss) = createPSS("printf("+(yyvsp[-2].si)->getName()+");\n", "null");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2114 "y.tab.c"
+#line 2209 "y.tab.c"
     break;
 
   case 42: /* statement: RETURN expression SEMICOLON  */
-#line 603 "1805090.y"
+#line 698 "1805090.y"
                                       {
-		print("statement -> RETURN expression SEMICOLON");
-		(yyval.pss) = createPSS("return "+*((yyvsp[-1].pss)->first)+";", *((yyvsp[-1].pss)->second));
+		print("statement : RETURN expression SEMICOLON");
+		(yyval.pss) = createPSS("return "+*((yyvsp[-1].pss)->first)+";\n", *((yyvsp[-1].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2123 "y.tab.c"
+#line 2219 "y.tab.c"
     break;
 
   case 43: /* expression_statement: SEMICOLON  */
-#line 609 "1805090.y"
+#line 705 "1805090.y"
                                         {
+		print("expression_statement : SEMICOLON");
 		(yyval.pss) = createPSS(";", "VOID");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2131 "y.tab.c"
+#line 2229 "y.tab.c"
     break;
 
   case 44: /* expression_statement: expression SEMICOLON  */
-#line 612 "1805090.y"
+#line 710 "1805090.y"
                                {
+		print("expression_statement : expression SEMICOLON");
 		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + ";", *((yyvsp[-1].pss)->second));
-		printPSS(*(yyval.pss));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2140 "y.tab.c"
+#line 2239 "y.tab.c"
     break;
 
   case 45: /* variable: ID  */
-#line 618 "1805090.y"
+#line 717 "1805090.y"
                 {
-		print("variable -> ID");
+		print("variable : ID");
 		string type = checkAndValidateID((yyvsp[0].si)->getName(), "0", "NOT_ARRAY");
 		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(), type);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2150 "y.tab.c"
+#line 2250 "y.tab.c"
     break;
 
   case 46: /* variable: ID LTHIRD expression RTHIRD  */
-#line 623 "1805090.y"
+#line 723 "1805090.y"
                                       {
-		print("variable -> ID LTHIRD expression RTHIRD");
+		print("variable : ID LTHIRD expression RTHIRD");
 		string type = checkAndValidateID((yyvsp[-3].si)->getName(), *((yyvsp[-1].pss)->first), *((yyvsp[-1].pss)->second));
 		(yyval.pss) = createPSS ((yyvsp[-3].si)->getName() + "[" + *((yyvsp[-1].pss)->first) + "]", type);
-		printPSS(*(yyval.pss));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2161 "y.tab.c"
+#line 2261 "y.tab.c"
     break;
 
   case 47: /* expression: logic_expression  */
-#line 631 "1805090.y"
+#line 731 "1805090.y"
                               {
-		print("expression -> logic_expression");
-		(yyval.pss) = (yyvsp[0].pss);
-		printPSS(*(yyval.pss));
+		print("expression : logic_expression");
+		(yyval.pss) = createPSS(*((yyvsp[0].pss)->first) , *((yyvsp[0].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2171 "y.tab.c"
+#line 2271 "y.tab.c"
     break;
 
   case 48: /* expression: variable ASSIGNOP logic_expression  */
-#line 636 "1805090.y"
+#line 736 "1805090.y"
                                              {
 		// cout<<"\t\t\t\teikhane keno ashe?"<<endl;
 		//TODO eikhane onek kahini kora lagbe 
-		print("expression -> variable ASSIGNOP logic_expression");
+		print("expression : variable ASSIGNOP logic_expression");
 		checkAndValidAssign(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
 		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) + " = " + *((yyvsp[0].pss)->first), *((yyvsp[-2].pss)->second));
-		printPSS(*(yyval.pss));
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2184 "y.tab.c"
+#line 2284 "y.tab.c"
     break;
 
   case 49: /* logic_expression: rel_expression  */
-#line 646 "1805090.y"
+#line 746 "1805090.y"
                                   {
-		print("logic_expression -> rel_expression");
+		print("logic_expression : rel_expression");
 		(yyval.pss) = (yyvsp[0].pss);
-	}
-#line 2193 "y.tab.c"
-    break;
-
-  case 50: /* logic_expression: rel_expression LOGICOP rel_expression  */
-#line 650 "1805090.y"
-                                                {
-		print("rel_expression LOGICOP rel_expression");
-		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
-		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) +  " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
-		printPSS(*(yyval.pss));
-	}
-#line 2204 "y.tab.c"
-    break;
-
-  case 51: /* rel_expression: simple_expression  */
-#line 658 "1805090.y"
-                                    {
-		print("rel_expression -> simple_expression");
-		(yyval.pss) = (yyvsp[0].pss);
-		printPSS(*(yyval.pss));
-	}
-#line 2214 "y.tab.c"
-    break;
-
-  case 52: /* rel_expression: simple_expression RELOP simple_expression  */
-#line 663 "1805090.y"
-                                                        {
-		print("rel_expression -> simple_expression RELOP simple_expression");
-		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
-		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
-		printPSS(*(yyval.pss));
-	}
-#line 2225 "y.tab.c"
-    break;
-
-  case 53: /* simple_expression: term  */
-#line 671 "1805090.y"
-                         {
-		print("simple_expression -> term");
-		(yyval.pss) = (yyvsp[0].pss);
-	}
-#line 2234 "y.tab.c"
-    break;
-
-  case 54: /* simple_expression: simple_expression ADDOP term  */
-#line 675 "1805090.y"
-                                       {
-		print("simple_expression -> simple_expression ADDOP term");
-		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), getHigherType(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second)));
-		// printPSS(*$$);
-	}
-#line 2244 "y.tab.c"
-    break;
-
-  case 55: /* term: unary_expression  */
-#line 682 "1805090.y"
-                         {
-		print("term -> unary_expression");
-		(yyval.pss) = (yyvsp[0].pss);
-	}
-#line 2253 "y.tab.c"
-    break;
-
-  case 56: /* term: term MULOP unary_expression  */
-#line 686 "1805090.y"
-                                      {
-		print("term -> MULOP unary_expression");
-		checkModulusOperator(*((yyvsp[-2].pss)->second), (yyvsp[-1].si)->getName(), *((yyvsp[0].pss)->second), *((yyvsp[0].pss)->first));
-		string type = (yyvsp[-1].si)->getName() == "%" ? "int" : getHigherType(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
-		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), type);
-		printPSS(*(yyval.pss));
-	}
-#line 2265 "y.tab.c"
-    break;
-
-  case 57: /* unary_expression: ADDOP unary_expression  */
-#line 695 "1805090.y"
-                                          {
-		print("unary_expression -> ADDOP unary_expression");
-		(yyval.pss) = createPSS ((yyvsp[-1].si)->getName() + "" +(*((yyvsp[0].pss)->first)), *((yyvsp[0].pss)->second));
-		printPSS(*(yyval.pss));
-	}
-#line 2275 "y.tab.c"
-    break;
-
-  case 58: /* unary_expression: NOT unary_expression  */
-#line 700 "1805090.y"
-                               {
-		print("unary_expression -> NOT unary_expression");
-		(yyval.pss) = createPSS ("! "+(*((yyvsp[0].pss)->first)),"int");
-		// printPSS(*$$);
-	}
-#line 2285 "y.tab.c"
-    break;
-
-  case 59: /* unary_expression: factor  */
-#line 705 "1805090.y"
-                 {
-		print("unary_expression -> factor");
-		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
 	}
 #line 2294 "y.tab.c"
     break;
 
-  case 60: /* factor: variable  */
-#line 711 "1805090.y"
-                   {
-		print("factor -> variable");
+  case 50: /* logic_expression: rel_expression LOGICOP rel_expression  */
+#line 751 "1805090.y"
+                                                {
+		print("rel_expression LOGICOP rel_expression");
+		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
+		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) +  " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2305 "y.tab.c"
+    break;
+
+  case 51: /* rel_expression: simple_expression  */
+#line 759 "1805090.y"
+                                    {
+		print("rel_expression : simple_expression");
 		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2303 "y.tab.c"
+#line 2315 "y.tab.c"
     break;
 
-  case 61: /* factor: ID LPAREN argument_list RPAREN  */
-#line 715 "1805090.y"
-                                         { //TODO TODO
-		print("factor -> ID LPAREN argument_list RPAREN");
-		validateAndCreateFactor((yyvsp[-3].si), *(yyvsp[-1].vss));
-		(yyval.pss) = createPSS ((yyvsp[-3].si)->getName() + "(" + getStringFromArgumentList(*(yyvsp[-1].vss)) + ")", getIdVarType((yyvsp[-3].si)->getName()));
+  case 52: /* rel_expression: simple_expression RELOP simple_expression  */
+#line 764 "1805090.y"
+                                                        {
+		print("rel_expression : simple_expression RELOP simple_expression");
+		checkLogicAndRelExpression(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
+		(yyval.pss) = createPSS (*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), "int");
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2313 "y.tab.c"
+#line 2326 "y.tab.c"
     break;
 
-  case 62: /* factor: LPAREN expression RPAREN  */
-#line 720 "1805090.y"
-                                   {
-		print("factor -> LPAREN expression RPAREN");
-		(yyval.pss) = createPSS ("("+*((yyvsp[-1].pss)->first)+")",*((yyvsp[-1].pss)->second));
-		// printPSS(*$$);
-	}
-#line 2323 "y.tab.c"
-    break;
-
-  case 63: /* factor: CONST_INT  */
-#line 725 "1805090.y"
-                    {
-		print("factor -> CONST_INT");
-		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(),"CONST_INT");
-	}
-#line 2332 "y.tab.c"
-    break;
-
-  case 64: /* factor: CONST_FLOAT  */
-#line 729 "1805090.y"
-                      {
-		print("factor -> CONST_FLOAT");
-		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(), "CONST_FLOAT");
-	}
-#line 2341 "y.tab.c"
-    break;
-
-  case 65: /* factor: variable INCOP  */
-#line 733 "1805090.y"
+  case 53: /* simple_expression: term  */
+#line 772 "1805090.y"
                          {
-		print("factor -> variable INCOP");
-		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "++", *((yyvsp[-1].pss)->second));
-		printPSS(*(yyval.pss));
+		print("simple_expression : term");
+		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2351 "y.tab.c"
+#line 2336 "y.tab.c"
     break;
 
-  case 66: /* factor: variable DECOP  */
-#line 738 "1805090.y"
+  case 54: /* simple_expression: simple_expression ADDOP term  */
+#line 777 "1805090.y"
+                                       {
+		print("simple_expression : simple_expression ADDOP term");
+		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), getHigherType(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second)));
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2346 "y.tab.c"
+    break;
+
+  case 55: /* term: unary_expression  */
+#line 784 "1805090.y"
                          {
-		print("factor -> variable DECOP");
-		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "--", *((yyvsp[-1].pss)->second));
-		printPSS(*(yyval.pss));
+		print("term : unary_expression");
+		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2361 "y.tab.c"
+#line 2356 "y.tab.c"
     break;
 
-  case 67: /* argument_list: arguments  */
-#line 745 "1805090.y"
-                          {
-		print("arguments_list -> arguments");
-		(yyval.vss) = (yyvsp[0].vss);
+  case 56: /* term: term MULOP unary_expression  */
+#line 789 "1805090.y"
+                                      {
+		print("term : MULOP unary_expression");
+		checkModulusOperator(*((yyvsp[-2].pss)->second), (yyvsp[-1].si)->getName(), *((yyvsp[0].pss)->second), *((yyvsp[0].pss)->first));
+		string type = (yyvsp[-1].si)->getName() == "%" ? "int" : getHigherType(*((yyvsp[-2].pss)->second), *((yyvsp[0].pss)->second));
+		(yyval.pss) = createPSS(*((yyvsp[-2].pss)->first) + " " + (yyvsp[-1].si)->getName() + " " + *((yyvsp[0].pss)->first), type);
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2370 "y.tab.c"
+#line 2368 "y.tab.c"
     break;
 
-  case 68: /* argument_list: %empty  */
-#line 749 "1805090.y"
-          {
-		(yyval.vss) = new vector<pair<string*, string*>*>;
+  case 57: /* unary_expression: ADDOP unary_expression  */
+#line 798 "1805090.y"
+                                          {
+		print("unary_expression : ADDOP unary_expression");
+		(yyval.pss) = createPSS ((yyvsp[-1].si)->getName() + "" +(*((yyvsp[0].pss)->first)), *((yyvsp[0].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
 	}
 #line 2378 "y.tab.c"
     break;
 
-  case 69: /* arguments: arguments COMMA logic_expression  */
-#line 754 "1805090.y"
-                                             {
-		print("arguments -> arguments COMMA logic_expression");
-		(yyval.vss) = addLogicalExpression((yyvsp[-2].vss), (yyvsp[0].pss));
+  case 58: /* unary_expression: NOT unary_expression  */
+#line 803 "1805090.y"
+                               {
+		print("unary_expression : NOT unary_expression");
+		(yyval.pss) = createPSS ("! "+(*((yyvsp[0].pss)->first)),"int");
+		// log((*($$->first)).c_str());
+		log((*((yyval.pss)->first)).c_str());
 	}
-#line 2387 "y.tab.c"
+#line 2389 "y.tab.c"
+    break;
+
+  case 59: /* unary_expression: factor  */
+#line 809 "1805090.y"
+                 {
+		print("unary_expression : factor");
+		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2399 "y.tab.c"
+    break;
+
+  case 60: /* factor: variable  */
+#line 816 "1805090.y"
+                   {
+		print("factor : variable");
+		(yyval.pss) = (yyvsp[0].pss);
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2409 "y.tab.c"
+    break;
+
+  case 61: /* factor: ID LPAREN argument_list RPAREN  */
+#line 821 "1805090.y"
+                                         { //TODO TODO
+		print("factor : ID LPAREN argument_list RPAREN");
+		validateAndCreateFactor((yyvsp[-3].si), *(yyvsp[-1].vss));
+		(yyval.pss) = createPSS ((yyvsp[-3].si)->getName() + "(" + getStringFromArgumentList(*(yyvsp[-1].vss)) + ")", getIdVarType((yyvsp[-3].si)->getName()));
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2420 "y.tab.c"
+    break;
+
+  case 62: /* factor: LPAREN expression RPAREN  */
+#line 827 "1805090.y"
+                                   {
+		print("factor : LPAREN expression RPAREN");
+		(yyval.pss) = createPSS ("("+*((yyvsp[-1].pss)->first)+")",*((yyvsp[-1].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2430 "y.tab.c"
+    break;
+
+  case 63: /* factor: CONST_INT  */
+#line 832 "1805090.y"
+                    {
+		print("factor : CONST_INT");
+		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(),"CONST_INT");
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2440 "y.tab.c"
+    break;
+
+  case 64: /* factor: CONST_FLOAT  */
+#line 837 "1805090.y"
+                      {
+		print("factor : CONST_FLOAT");
+		(yyval.pss) = createPSS ((yyvsp[0].si)->getName(), "CONST_FLOAT");
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2450 "y.tab.c"
+    break;
+
+  case 65: /* factor: variable INCOP  */
+#line 842 "1805090.y"
+                         {
+		print("factor : variable INCOP");
+		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "++", *((yyvsp[-1].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2460 "y.tab.c"
+    break;
+
+  case 66: /* factor: variable DECOP  */
+#line 847 "1805090.y"
+                         {
+		print("factor : variable DECOP");
+		(yyval.pss) = createPSS (*((yyvsp[-1].pss)->first) + "--", *((yyvsp[-1].pss)->second));
+		log((*((yyval.pss)->first)).c_str());
+	}
+#line 2470 "y.tab.c"
+    break;
+
+  case 67: /* argument_list: arguments  */
+#line 854 "1805090.y"
+                          {
+		print("arguments_list : arguments");
+		(yyval.vss) = (yyvsp[0].vss);
+		log(getStringFromArguments(*(yyval.vss)).c_str());
+	}
+#line 2480 "y.tab.c"
+    break;
+
+  case 68: /* argument_list: %empty  */
+#line 859 "1805090.y"
+          {
+		(yyval.vss) = new vector<pair<string*, string*>*>;
+		log(getStringFromArguments(*(yyval.vss)).c_str());
+	}
+#line 2489 "y.tab.c"
+    break;
+
+  case 69: /* arguments: arguments COMMA logic_expression  */
+#line 865 "1805090.y"
+                                             {
+		print("arguments : arguments COMMA logic_expression");
+		(yyval.vss) = addLogicalExpression((yyvsp[-2].vss), (yyvsp[0].pss));
+		log(getStringFromArguments(*(yyval.vss)).c_str());
+	}
+#line 2499 "y.tab.c"
     break;
 
   case 70: /* arguments: logic_expression  */
-#line 758 "1805090.y"
+#line 870 "1805090.y"
                            {
-		print("arguments -> logic_expression");
+		print("arguments : logic_expression");
 		(yyval.vss) = addLogicalExpression(new vector<pair<string*, string*>*>, (yyvsp[0].pss));
+		log(getStringFromArguments(*(yyval.vss)).c_str());
 	}
-#line 2396 "y.tab.c"
+#line 2509 "y.tab.c"
     break;
 
 
-#line 2400 "y.tab.c"
+#line 2513 "y.tab.c"
 
       default: break;
     }
@@ -2589,12 +2702,13 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 764 "1805090.y"
+#line 877 "1805090.y"
 
 int main(int argc,char *argv[])
 {
 	table = new SymbolTable(7);
 	errout.open("error.txt");
+	logout.open("log.txt");
 	yyparse();
 	return 0;
 }

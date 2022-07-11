@@ -88,9 +88,12 @@ public:
     void printAll(ofstream &lout){
         ScopeTable* cur = currentTable;
         while(cur != nullptr){
+            lout<<endl;
             cur->print(lout);
             cur = cur->parent;
+            lout<<endl;
             // if(cur != nullptr)lout<<endl;
         }
+        lout<<endl;
     }
 };

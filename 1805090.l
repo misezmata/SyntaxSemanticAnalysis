@@ -350,7 +350,8 @@ NEWLINE \n
 [.] {
 	// cout<<"eikhane: "<<yytext<<endl;
 	// lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
-	error_count++;
+	// error_count++;
 	errorr("Unrecognized character");
+	return SEMICOLON;
 }
 %%

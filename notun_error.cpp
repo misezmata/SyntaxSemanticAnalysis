@@ -1,4 +1,8 @@
+int foo(int a, int b){
+    return 1;
+}
 int main(){
-    a, b, c
+    int a, b, c;
+    foo(a+10, b++%10);
     return 1;
 }

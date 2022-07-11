@@ -1514,16 +1514,17 @@ YY_RULE_SETUP
 {
 	// cout<<"eikhane: "<<yytext<<endl;
 	// lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
-	error_count++;
+	// error_count++;
 	errorr("Unrecognized character");
+	return SEMICOLON;
 }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 356 "1805090.l"
+#line 357 "1805090.l"
 ECHO;
 	YY_BREAK
-#line 1527 "lex.yy.c"
+#line 1528 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2538,5 +2539,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 356 "1805090.l"
+#line 357 "1805090.l"
 

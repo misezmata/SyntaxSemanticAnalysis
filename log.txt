@@ -1,629 +1,170 @@
-LINE 1: type_specifier -> INT
-LINE 1: declaration_list -> ID
-LINE 1: declaration_list -> declaration_list COMMA ID
-LINE 1: declaration_list -> declaration_list COMMA ID
-LINE 1: var_declaration -> type_specifier declaration_list SEMICOLON
-Inserted in ScopeTable# 1 at position 1, 0
-[1;46m
+LINE 1: type_specifier : INT
 
-ScopeTable# 1
-0 --> 
-1 -->  < x, 1, 0 : ID int> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 --> 
-[0m
-Inserted in ScopeTable# 1 at position 2, 0
-[1;46m
+int
 
-ScopeTable# 1
-0 --> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 --> 
-4 --> 
-5 --> 
-6 --> 
-[0m
-Inserted in ScopeTable# 1 at position 3, 0
-[1;46m
+LINE 1: declaration_list : ID
 
-ScopeTable# 1
-0 --> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 --> 
-5 --> 
-6 --> 
-[0m
-LINE 1: unit -> var_declaration
-LINE 1: program -> unit
-LINE 1: type_specifier -> FLOAT
-LINE 1: declaration_list -> ID
-LINE 1: var_declaration -> type_specifier declaration_list SEMICOLON
-Inserted in ScopeTable# 1 at position 6, 0
-[1;46m
+x
 
-ScopeTable# 1
-0 --> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-LINE 1: unit -> var_declaration
-LINE 1: program -> program unit
-LINE 3: type_specifier -> VOID
-LINE 3: func_declaration -> type_specifier ID LPAREN RPAREN SEMICOLON
-Not found
-Inserted in ScopeTable# 1 at position 4, 0
-[1;46m
+LINE 1: declaration_list : declaration_list COMMA ID
 
-ScopeTable# 1
-0 --> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 0 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-LINE 3: unit -> func_declaration
-LINE 3: program -> program unit
-LINE 5: type_specifier -> INT
-LINE 5: type_specifier -> INT
-LINE 5: parameter_list -> type_specifier ID
- < a, 1, 0 : ID int> 
-LINE 5: type_specifier -> INT
-LINE 5: parameter_list -> parameter_list COMMA type_specifier ID
- < a, 1, 0 : ID int>  < b, 1, 0 : ID int> 
-Not found
-Inserted in ScopeTable# 1 at position 0, 0
-[1;46m
+x, y
 
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 0 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-New ScopeTable with id 1.1 created
-Inserted in ScopeTable# 1.1 at position 6, 0
-Inserted in ScopeTable# 1.1 at position 0, 0
-[1;46m
+LINE 1: declaration_list : declaration_list COMMA ID
 
-ScopeTable# 1.1
-0 -->  < b, 1, 0 : ID int> 
-1 --> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 0 : ID int> 
+x, y, z
+
+LINE 1: var_declaration : type_specifier declaration_list SEMICOLON
+
+int x, y, z;
+
+LINE 1: unit : var_declaration
+
+int x, y, z;
 
 
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 0 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-LINE 6: variable -> ID
-Found in ScopeTable# 1.1 at position 6, 0
-LINE 6: factor -> variable
-LINE 6: unary_expression -> factor
-LINE 6: term -> unary_expression
-LINE 6: simple_expression -> term
-LINE 6: variable -> ID
-Found in ScopeTable# 1.1 at position 0, 0
-LINE 6: factor -> variable
-LINE 6: unary_expression -> factor
-LINE 6: term -> unary_expression
-LINE 6: simple_expression -> simple_expression ADDOP term
-LINE 6: rel_expression -> simple_expression
-a + b (int)
-LINE 6: logic_expression -> rel_expression
-LINE 6: expression -> logic_expression
-a + b (int)
-LINE 6: statement -> RETURN expression SEMICOLON
-LINE 6: statements -> statement
-LINE 7: compound_statement -> LCURL statements RCURL
-ScopeTable with id 1.1 removed
-[1;33mWARNING(at line: 7):  func_definition -> type_specifier ID LPAREN parameter_list RPAREN compound_statement [0m
-[1;33mWARNING(at line: 7):  int, int [0m
-[1;33mWARNING(at line: 7):  int var(int a,int b){
-return a + b;
-} [0m
-LINE 7: unit -> func_definition
-LINE 7: program -> program unit
-LINE 9: type_specifier -> VOID
-Found in ScopeTable# 1 at position 4, 0
-Found in ScopeTable# 1 at position 4, 0
+LINE 1: program : unit
 
-Deleted Entry 4, 0 from current ScopeTable
-Inserted in ScopeTable# 1 at position 4, 0
-[1;46m
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-New ScopeTable with id 1.2 created
-[1;46m
-
-ScopeTable# 1.2
-0 --> 
-1 --> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 --> 
+int x, y, z;
 
 
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float> 
-[0m
-LINE 10: variable -> ID
-Found in ScopeTable# 1 at position 1, 0
-LINE 10: factor -> CONST_INT
-LINE 10: unary_expression -> factor
-LINE 10: term -> unary_expression
-LINE 10: simple_expression -> term
-LINE 10: rel_expression -> simple_expression
-2 (CONST_INT)
-LINE 10: logic_expression -> rel_expression
-LINE 10: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 10):  int int [0m
-x = 2 (int)
-x = 2; (int)
-LINE 10: statement -> expression_statement
-LINE 10: statements -> statement
-LINE 11: variable -> ID
-Found in ScopeTable# 1 at position 2, 0
-LINE 11: variable -> ID
-Found in ScopeTable# 1 at position 1, 0
-LINE 11: factor -> variable
-LINE 11: unary_expression -> factor
-LINE 11: term -> unary_expression
-LINE 11: simple_expression -> term
-LINE 11: factor -> CONST_INT
-LINE 11: unary_expression -> factor
-LINE 11: term -> unary_expression
-LINE 11: simple_expression -> simple_expression ADDOP term
-LINE 11: rel_expression -> simple_expression
-x - 5 (int)
-LINE 11: logic_expression -> rel_expression
-LINE 11: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 11):  int int [0m
-y = x - 5 (int)
-y = x - 5; (int)
-LINE 11: statement -> expression_statement
-LINE 11: statements -> statements statement
-[1;33mWARNING(at line: 11):  null null [0m
-LINE 12: compound_statement -> LCURL statements RCURL
-ScopeTable with id 1.2 removed
-[1;33mWARNING(at line: 12):  func_definition -> type_specifier ID LPAREN RPAREN compound_statement [0m
-[1;33mWARNING(at line: 12):  null, void [0m
-LINE 12: unit -> func_definition
-LINE 12: program -> program unit
-LINE 14: type_specifier -> INT
-Not found
-Inserted in ScopeTable# 1 at position 6, 1
-[1;46m
+LINE 1: type_specifier : FLOAT
 
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-New ScopeTable with id 1.3 created
-[1;46m
+float
 
-ScopeTable# 1.3
-0 --> 
-1 --> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 --> 
+LINE 1: declaration_list : ID
 
+a
 
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-LINE 15: type_specifier -> INT
-LINE 15: declaration_list -> ID LTHIRD CONST_INT RTHIRD
-LINE 15: declaration_list -> declaration_list COMMA ID
-LINE 15: declaration_list -> declaration_list COMMA ID
-LINE 15: declaration_list -> declaration_list COMMA ID
-LINE 15: var_declaration -> type_specifier declaration_list SEMICOLON
-Inserted in ScopeTable# 1.3 at position 6, 0
-[1;46m
+LINE 1: var_declaration : type_specifier declaration_list SEMICOLON
 
-ScopeTable# 1.3
-0 --> 
-1 --> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 2 : ID int> 
-
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-Inserted in ScopeTable# 1.3 at position 1, 0
-[1;46m
-
-ScopeTable# 1.3
-0 --> 
-1 -->  < c, 1, 0 : ID int> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 2 : ID int> 
-
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-Inserted in ScopeTable# 1.3 at position 0, 0
-[1;46m
-
-ScopeTable# 1.3
-0 -->  < i, 1, 0 : ID int> 
-1 -->  < c, 1, 0 : ID int> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 2 : ID int> 
-
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-Inserted in ScopeTable# 1.3 at position 1, 1
-[1;46m
-
-ScopeTable# 1.3
-0 -->  < i, 1, 0 : ID int> 
-1 -->  < c, 1, 0 : ID int>  < j, 1, 0 : ID int> 
-2 --> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 2 : ID int> 
-
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-LINE 15: statement -> var_declaration
-LINE 15: statements -> statement
-LINE 15: type_specifier -> FLOAT
-LINE 15: declaration_list -> ID
-LINE 15: var_declaration -> type_specifier declaration_list SEMICOLON
-Inserted in ScopeTable# 1.3 at position 2, 0
-[1;46m
-
-ScopeTable# 1.3
-0 -->  < i, 1, 0 : ID int> 
-1 -->  < c, 1, 0 : ID int>  < j, 1, 0 : ID int> 
-2 -->  < d, 1, 0 : ID float> 
-3 --> 
-4 --> 
-5 --> 
-6 -->  < a, 1, 2 : ID int> 
-
-
-ScopeTable# 1
-0 -->  < var, 2, 1 : ID int> 
-1 -->  < x, 1, 0 : ID int> 
-2 -->  < y, 1, 0 : ID int> 
-3 -->  < z, 1, 0 : ID int> 
-4 -->  < foo, 2, 1 : ID void> 
-5 --> 
-6 -->  < a, 1, 0 : ID float>  < main, 2, 1 : ID int> 
-[0m
-LINE 15: statement -> var_declaration
-LINE 15: statements -> statements statement
-[1;33mWARNING(at line: 15):  null null [0m
-LINE 16: factor -> CONST_INT
-LINE 16: unary_expression -> factor
-LINE 16: term -> unary_expression
-LINE 16: simple_expression -> term
-LINE 16: rel_expression -> simple_expression
-0 (CONST_INT)
-LINE 16: logic_expression -> rel_expression
-LINE 16: expression -> logic_expression
-0 (CONST_INT)
-LINE 16: variable -> ID LTHIRD expression RTHIRD
-Found in ScopeTable# 1.3 at position 6, 0
-a[0] (int)
-LINE 16: factor -> variable
-LINE 16: unary_expression -> factor
-LINE 16: term -> unary_expression
-LINE 16: simple_expression -> term
-LINE 16: rel_expression -> simple_expression
-a[0] (int)
-LINE 16: logic_expression -> rel_expression
-LINE 16: expression -> logic_expression
-a[0] (int)
-a[0]; (int)
-LINE 16: statement -> expression_statement
-LINE 16: statements -> statements statement
-[1;33mWARNING(at line: 16):  null null [0m
-LINE 17: factor -> CONST_INT
-LINE 17: unary_expression -> factor
-LINE 17: term -> unary_expression
-LINE 17: simple_expression -> term
-LINE 17: rel_expression -> simple_expression
-1 (CONST_INT)
-LINE 17: logic_expression -> rel_expression
-LINE 17: expression -> logic_expression
-1 (CONST_INT)
-LINE 17: variable -> ID LTHIRD expression RTHIRD
-Found in ScopeTable# 1.3 at position 6, 0
-a[1] (int)
-LINE 17: factor -> CONST_INT
-LINE 17: unary_expression -> factor
-LINE 17: term -> unary_expression
-LINE 17: simple_expression -> term
-LINE 17: rel_expression -> simple_expression
-5 (CONST_INT)
-LINE 17: logic_expression -> rel_expression
-LINE 17: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 17):  int int [0m
-a[1] = 5 (int)
-a[1] = 5; (int)
-LINE 17: statement -> expression_statement
-LINE 17: statements -> statements statement
-[1;33mWARNING(at line: 17):  null null [0m
-LINE 18: variable -> ID
-Found in ScopeTable# 1.3 at position 0, 0
-LINE 18: factor -> CONST_INT
-LINE 18: unary_expression -> factor
-LINE 18: term -> unary_expression
-LINE 18: simple_expression -> term
-LINE 18: rel_expression -> simple_expression
-0 (CONST_INT)
-LINE 18: logic_expression -> rel_expression
-LINE 18: expression -> logic_expression
-0 (CONST_INT)
-LINE 18: variable -> ID LTHIRD expression RTHIRD
-Found in ScopeTable# 1.3 at position 6, 0
-a[0] (int)
-LINE 18: factor -> variable
-LINE 18: unary_expression -> factor
-LINE 18: term -> unary_expression
-LINE 18: simple_expression -> term
-LINE 18: factor -> CONST_INT
-LINE 18: unary_expression -> factor
-LINE 18: term -> unary_expression
-LINE 18: simple_expression -> term
-LINE 18: rel_expression -> simple_expression
-1 (CONST_INT)
-LINE 18: logic_expression -> rel_expression
-LINE 18: expression -> logic_expression
-1 (CONST_INT)
-LINE 18: variable -> ID LTHIRD expression RTHIRD
-Found in ScopeTable# 1.3 at position 6, 0
-a[1] (int)
-LINE 18: factor -> variable
-LINE 18: unary_expression -> factor
-LINE 18: term -> unary_expression
-LINE 18: simple_expression -> simple_expression ADDOP term
-LINE 18: rel_expression -> simple_expression
-a[0] + a[1] (int)
-LINE 18: logic_expression -> rel_expression
-LINE 18: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 18):  int int [0m
-i = a[0] + a[1] (int)
-i = a[0] + a[1]; (int)
-LINE 18: statement -> expression_statement
-LINE 18: statements -> statements statement
-[1;33mWARNING(at line: 18):  null null [0m
-LINE 19: variable -> ID
-Found in ScopeTable# 1.3 at position 1, 1
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> MULOP unary_expression
-2 * 3 (int)
-LINE 19: simple_expression -> term
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> MULOP unary_expression
-5 % 3 (int)
-LINE 19: simple_expression -> term
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: simple_expression -> term
-LINE 19: rel_expression -> simple_expression RELOP simple_expression
-5 % 3 < 4 (int)
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: simple_expression -> term
-LINE 19: rel_expression -> simple_expression
-8 (CONST_INT)
-LINE 19: rel_expression LOGICOP rel_expression
-5 % 3 < 4 && 8 (int)
-LINE 19: expression -> logic_expression
-5 % 3 < 4 && 8 (int)
-LINE 19: factor -> LPAREN expression RPAREN
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: simple_expression -> simple_expression ADDOP term
-LINE 19: rel_expression -> simple_expression
-2 * 3 + (5 % 3 < 4 && 8) (int)
-LINE 19: factor -> CONST_INT
-LINE 19: unary_expression -> factor
-LINE 19: term -> unary_expression
-LINE 19: simple_expression -> term
-LINE 19: rel_expression -> simple_expression
-2 (CONST_INT)
-LINE 19: rel_expression LOGICOP rel_expression
-2 * 3 + (5 % 3 < 4 && 8) || 2 (int)
-LINE 19: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 19):  int int [0m
-j = 2 * 3 + (5 % 3 < 4 && 8) || 2 (int)
-j = 2 * 3 + (5 % 3 < 4 && 8) || 2; (int)
-LINE 19: statement -> expression_statement
-LINE 19: statements -> statements statement
-[1;33mWARNING(at line: 19):  null null [0m
-LINE 20: variable -> ID
-Found in ScopeTable# 1.3 at position 2, 0
-LINE 20: factor -> CONST_INT
-LINE 20: unary_expression -> factor
-LINE 20: term -> unary_expression
-LINE 20: simple_expression -> term
-LINE 20: rel_expression -> simple_expression
-1 (CONST_INT)
-LINE 20: logic_expression -> rel_expression
-LINE 20: arguments -> logic_expression
-1 (CONST_INT)
-LINE 20: factor -> CONST_INT
-LINE 20: unary_expression -> factor
-LINE 20: term -> unary_expression
-LINE 20: factor -> CONST_INT
-LINE 20: unary_expression -> factor
-LINE 20: term -> MULOP unary_expression
-2 * 3 (int)
-LINE 20: simple_expression -> term
-LINE 20: rel_expression -> simple_expression
-2 * 3 (int)
-LINE 20: logic_expression -> rel_expression
-LINE 20: arguments -> arguments COMMA logic_expression
-2 * 3 (int)
-LINE 20: arguments_list -> arguments
-LINE 20: factor -> ID LPAREN argument_list RPAREN
-Found in ScopeTable# 1 at position 0, 0
-Found in ScopeTable# 1 at position 0, 0
-LINE 20: unary_expression -> factor
-LINE 20: term -> unary_expression
-LINE 20: simple_expression -> term
-LINE 20: factor -> CONST_FLOAT
-LINE 20: unary_expression -> factor
-LINE 20: term -> unary_expression
-LINE 20: factor -> CONST_INT
-LINE 20: unary_expression -> factor
-LINE 20: term -> MULOP unary_expression
-3.5 * 2 (float)
-LINE 20: simple_expression -> simple_expression ADDOP term
-LINE 20: rel_expression -> simple_expression
-var(1,2 * 3) + 3.5 * 2 (float)
-LINE 20: logic_expression -> rel_expression
-LINE 20: expression -> variable ASSIGNOP logic_expression
-[1;33mWARNING(at line: 20):  float float [0m
-d = var(1,2 * 3) + 3.5 * 2 (float)
-d = var(1,2 * 3) + 3.5 * 2; (float)
-LINE 20: statement -> expression_statement
-LINE 20: statements -> statements statement
-[1;33mWARNING(at line: 20):  null null [0m
-LINE 21: factor -> CONST_INT
-LINE 21: unary_expression -> factor
-LINE 21: term -> unary_expression
-LINE 21: simple_expression -> term
-LINE 21: rel_expression -> simple_expression
-0 (CONST_INT)
-LINE 21: logic_expression -> rel_expression
-LINE 21: expression -> logic_expression
-0 (CONST_INT)
-LINE 21: statement -> RETURN expression SEMICOLON
-LINE 21: statements -> statements statement
-[1;33mWARNING(at line: 21):  null CONST_INT [0m
-LINE 22: compound_statement -> LCURL statements RCURL
-ScopeTable with id 1.3 removed
-[1;33mWARNING(at line: 22):  func_definition -> type_specifier ID LPAREN RPAREN compound_statement [0m
-[1;33mWARNING(at line: 22):  int, int [0m
-LINE 22: unit -> func_definition
-LINE 22: program -> program unit
-LINE 23: start -> program
-int x,  y,  z;
 float a;
-void foo();
-int var(int a,int b){
-return a + b;
-}
-void foo(){
-x = 2;
-y = x - 5;
-}
-int main(){
-int a[2],  c,  i,  j;
-float d;
-a[0];
-a[1] = 5;
-i = a[0] + a[1];
-j = 2 * 3 + (5 % 3 < 4 && 8) || 2;
-d = var(1,2 * 3) + 3.5 * 2;
-return 0;
-}
+
+LINE 1: unit : var_declaration
+
+float a;
+
+
+LINE 1: program : program unit
+
+int x, y, z;
+float a;
+
+
+LINE 3: type_specifier : INT
+
+int
+
+LINE 3: type_specifier : INT
+
+int
+
+LINE 3: parameter_list : type_specifier ID
+
+int a
+
+LINE 4: compound_statement : LCURL RCURL
+
+{}
+
+
+LINE 4: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement
+
+Error at line 4: Type mismatch, function is not void
+
+int var(int a){}
+
+
+LINE 4: unit : func_definition
+
+int var(int a){}
+
+
+
+LINE 4: program : program unit
+
+int x, y, z;
+float a;
+int var(int a){}
+
+
+
+LINE 7: type_specifier : INT
+
+int
+
+LINE 8: type_specifier : INT
+
+int
+
+LINE 8: declaration_list : ID
+
+x
+
+LINE 8: declaration_list : declaration_list COMMA ID
+
+x, y
+
+LINE 8: declaration_list : declaration_list COMMA ID
+
+x, y, z
+
+LINE 8: var_declaration : type_specifier declaration_list SEMICOLON
+
+int x, y, z;
+
+LINE 8: statement : var_declaration
+
+int x, y, z;
+
+
+LINE 8: statements : statement
+
+int x, y, z;
+
+
+LINE 9: variable : ID
+
+a
+
+LINE 9: factor : CONST_INT
+
+2
+
+LINE 9: unary_expression : factor
+
+2
+
+LINE 9: term : unary_expression
+
+2
+
+LINE 9: simple_expression : term
+
+2
+
+LINE 11: declaration_list : ID
+
+x
+
+LINE 11: var_declaration : type_specifier declaration_list SEMICOLON
+
+Error at line 11: Variable type cannot be void
+
+Error at line 11: Multiple declaration of x
+
+Error at line 11: type_specifier not specified, missing semicolon
+
+void x;
+
+LINE 11: statement : var_declaration
+
+void x;
+
+
+LINE 11: statements : statements statement
+
+int x, y, z;
+void x;
+
+

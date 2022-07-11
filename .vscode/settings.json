@@ -11,6 +11,7 @@
         "unordered_map": "c",
         "unordered_set": "c",
         "vector": "c",
-        "random": "cpp"
+        "random": "cpp",
+        "ostream": "c"
     }
 }
