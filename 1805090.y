@@ -35,8 +35,8 @@ void warning(const char *s){
 }
 
 void print(string s){
-	cout<<"LINE "<<yylineno<<": "<<s<<endl;
-	logout<<"LINE "<<yylineno<<": "<<s<<endl<<endl;
+	cout<<"Line "<<yylineno<<": "<<s<<endl;
+	logout<<"Line "<<yylineno<<": "<<s<<endl<<endl;
 }
 void log(const char *s){
 	logout<<s<<endl<<endl;
@@ -92,7 +92,7 @@ string getParamList(vector<SymbolInfo*> v){
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
 		builder += v[i]->getVarType() + " " + v[i]->getName();
-		if(i != sz - 1) builder += ", ";
+		if(i != sz - 1) builder += ",";
 	}
 	return builder;
 }
@@ -100,7 +100,7 @@ string* createFunctionDeclaration(string specifier, string funName, vector<Symbo
 	string builder = specifier + " " + funName + "(";
 	int sz = v.size();
 	for(int i=0; i<sz; i++){
-		builder += v[i]->getType() + " " + v[i]->getName();
+		builder += v[i]->getVarType() + " " + v[i]->getName();
 		if(i != sz - 1) builder += ",";
 	}
 	builder += ");\n";
@@ -137,7 +137,7 @@ string getStringFromDeclarationList(vector<SymbolInfo*> v){
 	for(int i=0; i<sz; i++){
 		builder+=v[i]->getName();
 		if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
-		if(i != sz - 1) builder += ", ";
+		if(i != sz - 1) builder += ",";
 	}
 	return builder;
 }
@@ -170,7 +170,7 @@ string getStringFromArguments(vector<pair<string*, string*>*> vpss){
 	string s = "";
 	for(int i=0; i<sz; i++){
 		s += *(vpss[i]->first);
-		if(i != sz - 1) s+=", ";
+		if(i != sz - 1) s+=",";
 	}
 	return s;
 }
@@ -214,7 +214,7 @@ bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2, s
 	if(v1 == nullptr) return false;
 	if(v2 == nullptr) return false;
 	if(v1->size() != v2->size()) {
-		errorr(("Total number of parameters mismatch with declaration in function "+funcName).c_str());
+		errorr(("Total number of arguments mismatch in function "+funcName).c_str());
 		return false;
 	}
 	int sz = v1->size();
@@ -283,7 +283,7 @@ void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
 	}else if(found->getParams()->size() != v.size()){
 		cout<<found->getParams()->size()<<endl;
 		cout<<v.size()<<endl;
-		errorr(("Total number of arguments mismatch with declaration in function "+found->getName()).c_str());
+		errorr(("Total number of arguments mismatch in function "+found->getName()).c_str());
 	}else if(found->getVarType() == "void" || found->getVarType() == "VOID"){
 		// errorr("Void function used in expression");
 	}else{
@@ -386,11 +386,15 @@ void chekAndValidateFunctionSignature(string a, string b){
 	}
 }
 
-void checkModulusOperator(string t1, string op, string t2, string s2){
-	if(op != "%") return;
+void checkMulOp(string t1, string op, string t2, string s2){
+	// if(op != "%") return;
 	normalize(t1, t2);
-	if(t1 != "int" || t2 != "int") errorr("Non-Integer operand on modulus operator");
-	if(s2 == "0") errorr("Modulus by Zero");
+	if(op == "%"){
+		if(t1 != "int" || t2 != "int") errorr("Non-Integer operand on modulus operator");
+		if(s2 == "0") errorr("Modulus by Zero");
+	}else if(op == "/"){
+		if(s2 == "0") errorr("Divided by zero");
+	}
 }
 
 void checkLogicAndRelExpression(string a, string b){
@@ -435,7 +439,7 @@ void checkLogicAndRelExpression(string a, string b){
 %%
 
 start : program {
-		print("start: program");
+		print("start : program");
 		$$ = $1;
 		table->printAll(logout);
 		logout<<"Total lines: "<<yylineno<<endl;
@@ -483,8 +487,9 @@ unit : var_declaration {
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 		print("func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
 		insertFunctionIdToSymbolTable($2, *$1, false, $4);
-		$$ = createFunctionDeclaration(*$1 + "\n", $2->getName(), *$4);
+		$$ = createFunctionDeclaration(*$1, $2->getName(), *$4);
 		// cout<<(*$$)<<endl;
+		table->enterScope(); table->exitScope();
 		log((*$$).c_str());
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON {
@@ -492,6 +497,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 		insertFunctionIdToSymbolTable($2, *$1, false, new vector<SymbolInfo*>);
 		$$ = new string((*$1) + " " + ($2->getName()) + "();\n");
 		// cout<<(*$$)<<endl;
+		table->enterScope(); table->exitScope();
 		log((*$$ ).c_str());
 	}
 	;
@@ -559,6 +565,7 @@ compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} state
 	| LCURL RCURL {
 		print("compound_statement : LCURL RCURL");
 		$$ = createPSS("{}\n", "void");
+		table->enterScope(); table->exitScope();
 		// log((*($$->first)).c_str());
 		log((*($$->first)).c_str());
 	}
@@ -658,17 +665,20 @@ statement : var_declaration {
 		log((*($$->first)).c_str());
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement {
-		string s = "for (" + *($3->first) + " " + *($4->first) + " " + *($5->first) + " ) " + *($7->first) ; 
+		print("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
+		string s = "for(" + *($3->first) + *($4->first)  + *($5->first) + ")" + *($7->first) ; 
 		$$ = createPSS(s, *($7->second));
 		log((*($$->first)).c_str());
 	}
 	| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE {
-		string s = "if (" + *($3->first) +") " + *($5->first)+"\n";
+		print("statement : IF LPAREN expression RPAREN statement");
+		string s = "if (" + *($3->first) +")" + *($5->first);
 		$$ = createPSS(s, *($5->second));
 		log((*($$->first)).c_str());
 	}
 	| IF LPAREN expression RPAREN statement ELSE statement {
-		string s = "if ("+*($3->first)+") "+*($5->first) + "\nelse "+ *($7->first) ;
+		print("statement : IF LPAREN expression RPAREN statement ELSE statement");
+		string s = "if ("+*($3->first)+")"+*($5->first) + "else\n"+ *($7->first) ;
 		string t1 = *($5->second);
 		string t2 = *($7->second);
 		normalize(t1, t2);
@@ -683,15 +693,15 @@ statement : var_declaration {
 	}
 	| WHILE LPAREN expression RPAREN statement {
 		print("statement : WHILE LPAREN expression RPAREN statement");
-		$$ = createPSS("while("+*($3->first)+")\n", "null");
+		$$ = createPSS("while ("+*($3->first)+")"+*($5->first), "null");
 		log((*($$->first)).c_str());
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON {
+		print("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
 		if(table->lookUp($3->getName()) == nullptr){
 			string s = "Undeclared variable "+$3->getName();
 			errorr(s.c_str());
 		}
-		print("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
 		$$ = createPSS("printf("+$3->getName()+");\n", "null");
 		log((*($$->first)).c_str());
 	}
@@ -738,7 +748,7 @@ expression : logic_expression {
 		//TODO eikhane onek kahini kora lagbe 
 		print("expression : variable ASSIGNOP logic_expression");
 		checkAndValidAssign(*($1->second), *($3->second));
-		$$ = createPSS (*($1->first) + " = " + *($3->first), *($1->second));
+		$$ = createPSS (*($1->first) + "=" + *($3->first), *($1->second));
 		log((*($$->first)).c_str());
 	} 	
 ;
@@ -749,9 +759,9 @@ logic_expression : rel_expression {
 		log((*($$->first)).c_str());
 	}
 	| rel_expression LOGICOP rel_expression {
-		print("rel_expression LOGICOP rel_expression");
+		print("logic_expression : rel_expression LOGICOP rel_expression");
 		checkLogicAndRelExpression(*($1->second), *($3->second));
-		$$ = createPSS (*($1->first) +  " " + $2->getName() + " " + *($3->first), "int");
+		$$ = createPSS (*($1->first) + $2->getName() + *($3->first), "int");
 		log((*($$->first)).c_str());
 	} 	
 ;
@@ -764,7 +774,7 @@ rel_expression	: simple_expression {
 	| simple_expression RELOP simple_expression	{
 		print("rel_expression : simple_expression RELOP simple_expression");
 		checkLogicAndRelExpression(*($1->second), *($3->second));
-		$$ = createPSS (*($1->first) + " " + $2->getName() + " " + *($3->first), "int");
+		$$ = createPSS (*($1->first) + $2->getName() + *($3->first), "int");
 		log((*($$->first)).c_str());
 	}
 ;
@@ -776,7 +786,7 @@ simple_expression : term {
 	}
 	| simple_expression ADDOP term {
 		print("simple_expression : simple_expression ADDOP term");
-		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), getHigherType(*($1->second), *($3->second)));
+		$$ = createPSS(*($1->first) + $2->getName() + *($3->first), getHigherType(*($1->second), *($3->second)));
 		log((*($$->first)).c_str());
 	}
 ;
@@ -787,10 +797,10 @@ term :	unary_expression {
 		log((*($$->first)).c_str());
 	}
 	| term MULOP unary_expression {
-		print("term : MULOP unary_expression");
-		checkModulusOperator(*($1->second), $2->getName(), *($3->second), *($3->first));
+		print("term : term MULOP unary_expression");
+		checkMulOp(*($1->second), $2->getName(), *($3->second), *($3->first));
 		string type = $2->getName() == "%" ? "int" : getHigherType(*($1->second), *($3->second));
-		$$ = createPSS(*($1->first) + " " + $2->getName() + " " + *($3->first), type);
+		$$ = createPSS(*($1->first) + $2->getName() + *($3->first), type);
 		log((*($$->first)).c_str());
 	}
 ;
@@ -802,7 +812,7 @@ unary_expression : ADDOP unary_expression {
 	}
 	| NOT unary_expression {
 		print("unary_expression : NOT unary_expression");
-		$$ = createPSS ("! "+(*($2->first)),"int");
+		$$ = createPSS ("!"+(*($2->first)),"int");
 		// log((*($$->first)).c_str());
 		log((*($$->first)).c_str());
 	}
@@ -852,7 +862,7 @@ factor	: variable {
 ;
 
 argument_list : arguments {
-		print("arguments_list : arguments");
+		print("argument_list : arguments");
 		$$ = $1;
 		log(getStringFromArguments(*$$).c_str());
 	}

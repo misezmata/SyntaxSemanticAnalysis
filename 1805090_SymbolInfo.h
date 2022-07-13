@@ -29,7 +29,7 @@ public:
         cout<<" < "<<name<<", "<<spec<<", "<<size<<" : "<<type<<" "<<varType<<"> ";
     }
     void print(ofstream &lout){
-        lout<<"< "<<name<<" : "<<type<<"> ";
+        lout<<"< "<<name<<" , "<<type<<" > ";
     }
     void print2(){
         cout<<"{"<<endl;

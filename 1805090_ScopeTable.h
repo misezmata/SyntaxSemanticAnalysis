@@ -143,7 +143,7 @@ public:
         }
     }
      void print(ofstream &lout){
-        lout<<endl<<"ScopeTable# "<<uniqueId<<endl;
+        lout<<endl<<"ScopeTable # "<<uniqueId<<endl;
         for(int i=0; i<size; i++){
             if(hash_table[i] == nullptr) continue;
             lout<<i<<" --> ";
