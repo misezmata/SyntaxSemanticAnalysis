@@ -189,15 +189,15 @@ NEWLINE \n
 		return ASSIGNOP;}
 "&&" |
 "||" {operatorAndPunc("LOGICOP"); return LOGICOP;}
-"!" {operatorAndPunc("NOT");return NOT;}
-"(" {operatorAndPunc("LPAREN");return LPAREN;}
-")" {operatorAndPunc("RPAREN");return RPAREN;}
-"{" {operatorAndPunc("LCURL");return LCURL;}
-"}" {operatorAndPunc("RCURL");return RCURL;}
-"[" {operatorAndPunc("LTHIRD");return LTHIRD;}
-"]" {operatorAndPunc("RTHIRD");return RTHIRD;}
-"," {operatorAndPunc("COMMA");return COMMA;}
-";" {operatorAndPunc("SEMICOLON");return SEMICOLON;}
+"!" {return NOT;}
+"(" {return LPAREN;}
+")" {return RPAREN;}
+"{" {return LCURL;}
+"}" {return RCURL;}
+"]" {return RTHIRD;}
+"[" {return LTHIRD;}
+"," {return COMMA;}
+";" {return SEMICOLON;}
 
 [A-Za-z_][A-Za-z_0-9]* {
 	// tokenWithSymbol("ID", yytext);

@@ -387,7 +387,7 @@ static const flex_int16_t yy_accept[185] =
         0,    0,    0,    0,    0,    0,    0,    0,   75,   74,
         2,    1,    2,   40,   58,   28,   74,   74,   41,   42,
        26,   24,   47,   25,   73,   27,   20,   48,   31,   37,
-       33,   49,   49,   45,   46,   49,   49,   49,   49,   49,
+       33,   49,   49,   46,   45,   49,   49,   49,   49,   49,
        49,   49,   49,   49,   49,   49,   43,   74,   44,   65,
        62,   65,   64,   63,   68,   69,   68,   68,   72,   72,
         2,    1,   36,   38,    0,   56,    0,   54,    0,   29,
@@ -1212,47 +1212,47 @@ YY_RULE_SETUP
 case 40:
 YY_RULE_SETUP
 #line 192 "1805090.l"
-{operatorAndPunc("NOT");return NOT;}
+{return NOT;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 193 "1805090.l"
-{operatorAndPunc("LPAREN");return LPAREN;}
+{return LPAREN;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 194 "1805090.l"
-{operatorAndPunc("RPAREN");return RPAREN;}
+{return RPAREN;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 195 "1805090.l"
-{operatorAndPunc("LCURL");return LCURL;}
+{return LCURL;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 196 "1805090.l"
-{operatorAndPunc("RCURL");return RCURL;}
+{return RCURL;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 197 "1805090.l"
-{operatorAndPunc("LTHIRD");return LTHIRD;}
+{return RTHIRD;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 198 "1805090.l"
-{operatorAndPunc("RTHIRD");return RTHIRD;}
+{return LTHIRD;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 199 "1805090.l"
-{operatorAndPunc("COMMA");return COMMA;}
+{return COMMA;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 200 "1805090.l"
-{operatorAndPunc("SEMICOLON");return SEMICOLON;}
+{return SEMICOLON;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP

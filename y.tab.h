@@ -147,18 +147,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 417 "1805090.y"
+#line 444 "1805090.y"
 
-	int iint; 
-	double ddouble; 
-	char cchar; 
 	SymbolInfo* si;
 	vector<SymbolInfo*>* vvector;	
 	string* sstring;
 	pair<string*, string*>* pss;
 	vector<pair<string*, string*>*>* vss;
 
-#line 162 "y.tab.h"
+#line 159 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -24,6 +24,12 @@ public:
     }
     ~SymbolInfo(){
         next = nullptr;
+        if(params == nullptr) return;
+        int sz = params->size();
+        for(int i=0; i<sz; i++){
+            delete ((*(params))[i]);
+        }
+        delete params;
     }
     void print(){
         cout<<" < "<<name<<", "<<spec<<", "<<size<<" : "<<type<<" "<<varType<<"> ";

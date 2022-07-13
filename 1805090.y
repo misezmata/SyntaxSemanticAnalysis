@@ -12,7 +12,6 @@ int yylex(void);
 extern FILE *yyin;
 extern int yylineno;
 SymbolTable *table;
-string builder;
 vector<pair<string, string> > paramList;
 ofstream errout;
 ofstream logout;
@@ -119,6 +118,7 @@ void normalize(string &a, string &b){
 string getHigherType(string a, string b){
 	normalize(a, b);
 	if(a == b) return a;
+	if(a == "null" || b == "null") return "null";
 	if(a == "void" || b == "void") {
 		// errorr("Void function used in expression");
 		return "void";
@@ -177,7 +177,6 @@ string getStringFromArguments(vector<pair<string*, string*>*> vpss){
 
 vector<pair<string*, string*>*>* addLogicalExpression(vector<pair<string*, string*>*>* vpss, pair<string*, string*>* pss){
 	vpss->push_back(pss);
-	printPSS(*pss);
 	return vpss;
 }
 
@@ -410,14 +409,39 @@ void checkLogicAndRelExpression(string a, string b){
 
 // 	}
 // }
+void deleteMe(string* s){
+	if(s != nullptr) delete s;
+}
+void deleteMe(pair<string*, string*>* pss){
+	if(pss == nullptr) return;
+	if(pss->first != nullptr) delete pss->first;
+	if(pss->second != nullptr) delete pss->second;
+	delete pss;
+}
+void deleteMe(vector<pair<string*, string*>*>* vss){
+	if(vss == nullptr) return;
+	int sz = vss->size();
+	for(int i=0; i<sz; i++){
+		deleteMe((*(vss))[i]);
+	}
+	delete vss;
+}
+void deleteMe(vector<SymbolInfo*>* vsi){
+	if(vsi == nullptr) return;
+	int sz = vsi->size();
+	for(int i=0; i<sz; i++){
+		delete ((*(vsi))[i]);
+	}
+	delete vsi;
+}
+void deleteMe(SymbolInfo* si){
+	delete si;
+}
 
 
 %}
 
 %union {
-	int iint; 
-	double ddouble; 
-	char cchar; 
 	SymbolInfo* si;
 	vector<SymbolInfo*>* vvector;	
 	string* sstring;
@@ -457,6 +481,8 @@ program : program unit {
 		$$ = createPSS(fst, "null");
 		log((*($$->first)).c_str());
 		// cout<<*$$<<endl;
+		deleteMe($1);
+		deleteMe($2);
 	}
 	| unit {
 		print("program : unit");
@@ -470,17 +496,20 @@ unit : var_declaration {
 		print("unit : var_declaration");
 		$$ = createPSS(*($1) + "\n", "null");
 		log((*($$->first) ).c_str());
+		deleteMe($1);
 	}
 	| func_declaration {
 		print("unit : func_declaration");
 		$$ = createPSS(*($1), "null");
 		paramList.clear();
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	} 
 	| func_definition {
 		print("unit : func_definition");
 		$$ = createPSS((*($1)->first+"\n"), "null");
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	;
 
@@ -491,6 +520,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 		// cout<<(*$$)<<endl;
 		table->enterScope(); table->exitScope();
 		log((*$$).c_str());
+		deleteMe($1);
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON {
 		print("func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
@@ -499,6 +529,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 		// cout<<(*$$)<<endl;
 		table->enterScope(); table->exitScope();
 		log((*$$ ).c_str());
+		deleteMe($1);
 	}
 	;
 
@@ -513,6 +544,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		string s = *($$->first); 
 		warning(s.c_str());
 		log((*($$->first) ).c_str());
+		deleteMe($1);
 	}
 	| type_specifier ID LPAREN RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, new vector<SymbolInfo*>);
@@ -525,6 +557,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		warning((*($6->second)+", " + *($1)).c_str());
 		// log((*($$->first)).c_str());
 		log((*($$->first) ).c_str());
+		deleteMe($1);
 		// cout<<*$$<<endl;
 	}
 	;				
@@ -533,22 +566,26 @@ parameter_list  : parameter_list COMMA type_specifier ID {
 		print("parameter_list : parameter_list COMMA type_specifier ID");
 		$$ = addParameter($1, $4, *$3);
 		log(getParamList(*$$).c_str());
+		deleteMe($3);
 	}
 	| parameter_list COMMA type_specifier {
 		print("parameter_list : parameter_list COMMA type_specifier");
 		$$ = addParameter($1, new SymbolInfo("", *$3), *$3);
 		log(getParamList(*$$).c_str());
+		deleteMe($3);
 	}
 	| type_specifier ID {
 		print("parameter_list : type_specifier ID");
 		$$ = addParameter(new vector<SymbolInfo*>, $2, *$1);
 		log(getParamList(*$$).c_str());
+		deleteMe($1);
 	}
 	| type_specifier {
 		print("parameter_list : type_specifier");
 		$$ = addParameter(new vector<SymbolInfo*>, new SymbolInfo("", (*$1)), *$1);
 		// log((*($$->first)).c_str());
 		log(getParamList(*$$).c_str());
+		deleteMe($1);
 	}
 	;
 
@@ -560,6 +597,7 @@ compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} state
 		log((*($$->first)).c_str());
 		table->printAll(logout);
 		table->exitScope();
+		deleteMe($3);
 		// log((*($$->first)).c_str());
 	}
 	| LCURL RCURL {
@@ -577,6 +615,7 @@ var_declaration : type_specifier declaration_list SEMICOLON {
 		insertToSymbolTable(*$1, *$2);
 		// cout<<(*$$)<<endl;
 		log((*$$).c_str());
+		deleteMe($1);
 	}
 	| error declaration_list SEMICOLON {
 		print("var_declaration : type_specifier declaration_list SEMICOLON");
@@ -600,6 +639,7 @@ var_declaration : type_specifier declaration_list SEMICOLON {
 		insertToSymbolTable(*$1, *$2);
 		errorr("missing semicolon");
 		log((*$$).c_str());
+		deleteMe($1);
 		// cout<<(*$$)<<endl;
 	}
 	;
@@ -618,8 +658,9 @@ declaration_list : declaration_list COMMA ID {
 		print("declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
 		$$ = addDeclaration($1, $3, $5->getName());	
 		log(getStringFromDeclarationList(*$$).c_str());
+		deleteMe($5);
 	}
-	| ID 	{	
+	| ID {	
 		print("declaration_list : ID");
 		$$ = addDeclaration(new vector<SymbolInfo*>, $1, "0");
 		log(getStringFromDeclarationList(*$$).c_str());
@@ -628,6 +669,7 @@ declaration_list : declaration_list COMMA ID {
 		print("declaration_list : ID LTHIRD CONST_INT RTHIRD");
 		$$ = addDeclaration(new vector<SymbolInfo*>, $1, $3->getName());
 		log(getStringFromDeclarationList(*$$).c_str());
+		deleteMe($3);
 	} 
 	;
 
@@ -637,6 +679,7 @@ statements : statement {
 		// cout<<'\t'<<(*$$)<<endl;
 		// log((*($$->first)).c_str());
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| statements statement {
 		print("statements : statements statement");
@@ -645,6 +688,8 @@ statements : statement {
 		// cout<<(*$$)<<endl;
 		// log((*($$->first)).c_str());
 		log((*($$->first)).c_str());
+		deleteMe($1);
+		deleteMe($2);
 	}
 	;
 
@@ -652,16 +697,19 @@ statement : var_declaration {
 		print("statement : var_declaration");
 		$$ = createPSS(*$1+"\n", "null");
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| expression_statement {
 		print("statement : expression_statement");
 		$$ = createPSS(*($1->first) + "\n", "null");
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| compound_statement {
 		print("statement : compound_statement");
 		// $$ = createPSS(*$1, *($1-.second));
-		$$ = createPSS(*($1->first), *($1->second));
+		// $$ = createPSS(*($1->first), *($1->second));
+		$$ = $1;
 		log((*($$->first)).c_str());
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement {
@@ -669,12 +717,18 @@ statement : var_declaration {
 		string s = "for(" + *($3->first) + *($4->first)  + *($5->first) + ")" + *($7->first) ; 
 		$$ = createPSS(s, *($7->second));
 		log((*($$->first)).c_str());
+		deleteMe($3);
+		deleteMe($4);
+		deleteMe($5);
+		deleteMe($7);
 	}
 	| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE {
 		print("statement : IF LPAREN expression RPAREN statement");
 		string s = "if (" + *($3->first) +")" + *($5->first);
 		$$ = createPSS(s, *($5->second));
 		log((*($$->first)).c_str());
+		deleteMe($3);
+		deleteMe($5);
 	}
 	| IF LPAREN expression RPAREN statement ELSE statement {
 		print("statement : IF LPAREN expression RPAREN statement ELSE statement");
@@ -690,11 +744,16 @@ statement : var_declaration {
 		}
 		$$ = createPSS(s, type);
 		log((*($$->first)).c_str());
+		deleteMe($3);
+		deleteMe($5);
+		deleteMe($7);
 	}
 	| WHILE LPAREN expression RPAREN statement {
 		print("statement : WHILE LPAREN expression RPAREN statement");
 		$$ = createPSS("while ("+*($3->first)+")"+*($5->first), "null");
 		log((*($$->first)).c_str());
+		deleteMe($3);
+		deleteMe($5);
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON {
 		print("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
@@ -704,11 +763,13 @@ statement : var_declaration {
 		}
 		$$ = createPSS("printf("+$3->getName()+");\n", "null");
 		log((*($$->first)).c_str());
+		deleteMe($3);
 	}
 	| RETURN expression SEMICOLON {
 		print("statement : RETURN expression SEMICOLON");
 		$$ = createPSS("return "+*($2->first)+";\n", *($2->second));
 		log((*($$->first)).c_str());
+		deleteMe($2);
 	}
 ;
 
@@ -721,6 +782,7 @@ expression_statement : SEMICOLON	{
 		print("expression_statement : expression SEMICOLON");
 		$$ = createPSS (*($1->first) + ";", *($1->second));
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 ;
 
@@ -735,6 +797,8 @@ variable : ID 	{
 		string type = checkAndValidateID($1->getName(), *($3->first), *($3->second));
 		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", type);
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($3);
+
 	}
 ;
 
@@ -750,6 +814,7 @@ expression : logic_expression {
 		checkAndValidAssign(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + "=" + *($3->first), *($1->second));
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($3);
 	} 	
 ;
 
@@ -763,6 +828,7 @@ logic_expression : rel_expression {
 		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + $2->getName() + *($3->first), "int");
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($2);deleteMe($3);
 	} 	
 ;
 
@@ -776,6 +842,7 @@ rel_expression	: simple_expression {
 		checkLogicAndRelExpression(*($1->second), *($3->second));
 		$$ = createPSS (*($1->first) + $2->getName() + *($3->first), "int");
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($3);
 	}
 ;
 
@@ -788,6 +855,7 @@ simple_expression : term {
 		print("simple_expression : simple_expression ADDOP term");
 		$$ = createPSS(*($1->first) + $2->getName() + *($3->first), getHigherType(*($1->second), *($3->second)));
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($2);deleteMe($3);
 	}
 ;
 
@@ -802,6 +870,7 @@ term :	unary_expression {
 		string type = $2->getName() == "%" ? "int" : getHigherType(*($1->second), *($3->second));
 		$$ = createPSS(*($1->first) + $2->getName() + *($3->first), type);
 		log((*($$->first)).c_str());
+		deleteMe($1);deleteMe($2);deleteMe($3);
 	}
 ;
 
@@ -809,12 +878,15 @@ unary_expression : ADDOP unary_expression {
 		print("unary_expression : ADDOP unary_expression");
 		$$ = createPSS ($1->getName() + "" +(*($2->first)), *($2->second));
 		log((*($$->first)).c_str());
+		deleteMe($1);
+		deleteMe($2);
 	}
 	| NOT unary_expression {
 		print("unary_expression : NOT unary_expression");
 		$$ = createPSS ("!"+(*($2->first)),"int");
 		// log((*($$->first)).c_str());
 		log((*($$->first)).c_str());
+		deleteMe($2);
 	}
 	| factor {
 		print("unary_expression : factor");
@@ -833,31 +905,39 @@ factor	: variable {
 		validateAndCreateFactor($1, *$3);
 		$$ = createPSS ($1->getName() + "(" + getStringFromArgumentList(*$3) + ")", getIdVarType($1->getName()));
 		log((*($$->first)).c_str());
+		deleteMe($1);
+		deleteMe($3); 
+
 	}
 	| LPAREN expression RPAREN {
 		print("factor : LPAREN expression RPAREN");
 		$$ = createPSS ("("+*($2->first)+")",*($2->second));
 		log((*($$->first)).c_str());
+		deleteMe($2);
 	}
 	| CONST_INT {
 		print("factor : CONST_INT");
 		$$ = createPSS ($1->getName(),"CONST_INT");
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| CONST_FLOAT {
 		print("factor : CONST_FLOAT");
 		$$ = createPSS ($1->getName(), "CONST_FLOAT");
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| variable INCOP {
 		print("factor : variable INCOP");
 		$$ = createPSS (*($1->first) + "++", *($1->second));
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 	| variable DECOP {
 		print("factor : variable DECOP");
 		$$ = createPSS (*($1->first) + "--", *($1->second));
 		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 ;
 
@@ -887,9 +967,24 @@ arguments : arguments COMMA logic_expression {
 %%
 int main(int argc,char *argv[])
 {
+	if(argc < 2){
+		cout<<"Input file name missing!"<<endl;
+		return 0;
+	}
+	FILE* fp;
+	if((fp = fopen(argv[1], "r")) == NULL){
+		cout<<"Failed to open file: "<<argv[1]<<endl;
+		return 0;
+	}
 	table = new SymbolTable(7);
-	errout.open("error.txt");
-	logout.open("log.txt");
+	if(argc == 4){
+		errout.open(argv[3]);
+		logout.open(argv[2]);
+	}else {
+		errout.open("error.txt");
+		logout.open("log.txt");
+	}
+	yyin = fp;
 	yyparse();
 	return 0;
 }
