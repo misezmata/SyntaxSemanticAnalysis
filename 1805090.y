@@ -209,7 +209,8 @@ bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2, s
 	int sz = v1->size();
 	for(int i=0; i<sz; i++){
 		if((*v1)[i]->getVarType() != (*v2)[i]->getVarType()) {
-			errorr(((i+1)+"th parameter's type specifier mismatched in function definition of "+funcName).c_str());
+			errout<<"Error at line "<<yylineno<<": ";
+			errout<<(i+1)<<"th parameter's type specifier mismatched in function defintion of "<<funcName<<endl;
 			return false;
 		}
 	}
@@ -455,6 +456,7 @@ start : program {
 		table->printAll(logout);
 		logout<<"Total lines: "<<yylineno<<endl;
 		logout<<"Total errors: "<<errorno<<endl<<endl;
+		deleteMe($$);
 		// cout<<*($$->first)<<endl;
 		// log((*($$->first) ).c_str());
 		// cout<<"eikhane ken ashe?"<<endl;
