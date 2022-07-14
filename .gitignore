@@ -8,3 +8,7 @@
 ./mine
 ./*.txt
 *.txt
+./.idea
+./.vscode
+.idea
+.vscode

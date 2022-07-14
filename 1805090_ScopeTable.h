@@ -21,14 +21,14 @@ class ScopeTable{
         if(hash_table[hash] == nullptr){
             hash_table[hash] = s;
             // cout<<s->name<<" inserted in: "<<uniqueId<<endl;
-            cout<<"Inserted in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<0<<endl;
+            // cout<<"Inserted in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<0<<endl;
             return true;
         }
         int count = 1;
         SymbolInfo* current = hash_table[hash];
         while(true){
             if(current->isSameName(s)) {
-                cout<<"<"<<current->getName()<<","<<current->getType()<<"> already exists in current ScopeTable"<<endl;
+                // cout<<"<"<<current->getName()<<","<<current->getType()<<"> already exists in current ScopeTable"<<endl;
                 return false;
             }
             if(current->next == nullptr) break; 
@@ -36,15 +36,15 @@ class ScopeTable{
             count++;
         }
         current->next = s;
-        cout<<"Inserted in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<count<<endl;
+        // cout<<"Inserted in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<count<<endl;
         return true;
     }
     bool deleteNode(SymbolInfo *s){
         int hash = hashFun(s->getName());
-        cout<<endl;
+        // cout<<endl;
         if(hash_table[hash] == s){
             hash_table[hash] = s->next;
-            cout<<"Deleted Entry "<<hash<<", "<<0<<" from current ScopeTable"<<endl;
+            // cout<<"Deleted Entry "<<hash<<", "<<0<<" from current ScopeTable"<<endl;
             delete s;
             //hash_table[hash] = nullptr;
             return true;
@@ -55,7 +55,7 @@ class ScopeTable{
         while(child != nullptr){
             if(child == s){
                 parent->next = child->next;
-                cout<<"Deleted Entry "<<hash<<", "<<count<<" from current ScopeTable"<<endl;
+                // cout<<"Deleted Entry "<<hash<<", "<<count<<" from current ScopeTable"<<endl;
                 delete child;
                 return true;
             }
@@ -114,7 +114,7 @@ public:
         int count = 0;
         while(cur != nullptr){
             if(cur->getName() == s) {
-                if(flag) cout<<"Found in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<count<<endl;
+                // if(flag) cout<<"Found in ScopeTable# "<<uniqueId<<" at position "<<hash<<", "<<count<<endl;
                 return cur;
             }
             cur = cur->next;
@@ -127,8 +127,8 @@ public:
     bool deleteNode(string name){
         SymbolInfo* si = lookUpTable(name, true);
         if(si == nullptr){
-            cout<<"Not found"<<endl<<endl;
-            cout<<name<<" not found"<<endl;
+            // cout<<"Not found"<<endl<<endl;
+            // cout<<name<<" not found"<<endl;
             return false;
         }
         return deleteNode(si);
@@ -137,7 +137,7 @@ public:
     void print(){
         cout<<endl<<"ScopeTable# "<<uniqueId<<endl;
         for(int i=0; i<size; i++){
-            cout<<i<<" --> ";
+            cout<<' '<<i<<" --> ";
             printList(hash_table[i]);
             cout<<endl;
         }
@@ -146,7 +146,7 @@ public:
         lout<<endl<<"ScopeTable # "<<uniqueId<<endl;
         for(int i=0; i<size; i++){
             if(hash_table[i] == nullptr) continue;
-            lout<<i<<" --> ";
+            lout<<' '<<i<<" --> ";
             printList(hash_table[i], lout);
             lout<<endl;
         }

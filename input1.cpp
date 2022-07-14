@@ -1,20 +1,8 @@
-int main(int a);
+int main();
+int foo();
 
-int main(int a){
-	int a, b;
-	float c;
-	a = 2;
-	b = 3;
-	if(a == b) {
-		return c;
-	}
-	if(a == b)
-		return c;
-		else 
-			return c;
-	
-	if (a) 
-		if (b) 
-			return c;
-		else return c;
+int main(){
+	int a, ara[10];
+	ara[9] = 10;
+	return 9+ara[0]<9+foo();
 }

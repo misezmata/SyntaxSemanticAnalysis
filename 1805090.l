@@ -352,6 +352,5 @@ NEWLINE \n
 	// lout<<"Error at line no "<<yylineno<<": Unrecognized character "<<yytext<<endl<<endl;
 	// error_count++;
 	errorr("Unrecognized character");
-	return SEMICOLON;
 }
 %%

@@ -26,28 +26,20 @@ void errorr(const char *s){
 	errorno++;
 	errout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
 	logout<<"Error at line "<<yylineno<<": "<<s<<"\n"<<endl;
-	printf("\033[1;31mError at line: %d:  %s \033[0m\n",yylineno, s);
+	// printf("\033[1;31mError at line: %d:  %s \033[0m\n",yylineno, s);
 }
 
 void warning(const char *s){
-	printf("\033[1;33mWARNING(at line: %d):  %s \033[0m\n",yylineno, s);
+	// printf("\033[1;33mWARNING(at line: %d):  %s \033[0m\n",yylineno, s);
 }
 
 void print(string s){
-	cout<<"Line "<<yylineno<<": "<<s<<endl;
+	// cout<<"Line "<<yylineno<<": "<<s<<endl;
 	logout<<"Line "<<yylineno<<": "<<s<<endl<<endl;
 }
 void log(const char *s){
 	logout<<s<<endl<<endl;
 }
-
-void printVVector(vector<SymbolInfo*> v){
-	int size = v.size();
-	for(int i=0; i<size; i++){
-		SymbolInfo* si = v[i];
-		si->print();
-	}
-	cout<<endl;}
 
 pair<string*, string*>* createPSS(string a, string b){
 	return new pair<string*, string*> ({new string(a), new string(b)});
@@ -70,10 +62,9 @@ void addParamsToScopeTable(){
 		if(table->insert(si)){
 			
 		}else{
-			errorr(("Multiple declaration of "+si->getName()+" in parameter").c_str());
+			// errorr(("Multiple declaration of "+si->getName()+" in parameter").c_str());
 		}
 	}
-	table->printAll();
 	paramList.clear();
 }
 
@@ -81,9 +72,16 @@ vector<SymbolInfo*>* addParameter(vector<SymbolInfo*>* prev, SymbolInfo* id, str
 	id->setSpec(1);
 	// id->setSize(stoi(size));
 	id->setVarType(specifier);
+	int sz = prev->size();
+	for(int i=0; i<sz; i++){
+		if((*prev)[i]->getName() == id->getName()){
+			errorr(("Multiple declaration of "+id->getName()+" in parameter").c_str());
+			// return prev;
+		}
+	}
 	prev->push_back(id);
 	paramList.push_back({id->getName(), specifier});
-	printVVector(*prev);
+	// printVVector(*prev);
 	return prev;}
 
 string getParamList(vector<SymbolInfo*> v){
@@ -127,7 +125,7 @@ string getHigherType(string a, string b){
 }
 
 void printPSS(pair<string*, string*> pss){
-	cout<<*(pss.first)<<" ("<<*(pss.second)<<")"<<endl;
+	// cout<<*(pss.first)<<" ("<<*(pss.second)<<")"<<endl;
 	// log((*(pss.first)).c_str());
 }
 
@@ -146,13 +144,6 @@ string getStringFromDeclarationList(vector<SymbolInfo*> v){
 string* createVarDeclaration(string t, vector<SymbolInfo*> v){
 	string builder = t+" ";
 	builder += getStringFromDeclarationList(v);
-	// int sz = v.size();
-	// for(int i=0; i<sz; i++){
-	// 	builder+=" ";
-	// 	builder+=v[i]->getName();
-	// 	if(v[i]->getSize() != 0) builder+= "["+to_string(v[i]->getSize())+"]";
-	// 	if(i != sz - 1) builder += ", ";
-	// }
 	builder+=";";
 	return new string(builder);
 }
@@ -202,7 +193,6 @@ void insertToSymbolTable(string type, vector<SymbolInfo*> v){
 		}else{
 			errorr(("Multiple declaration of "+v[i]->getName()).c_str());
 		}
-		table->printAll();
 	}
 }
 
@@ -213,7 +203,7 @@ bool matchParameterSignature(vector<SymbolInfo*>* v1, vector<SymbolInfo*>* v2, s
 	if(v1 == nullptr) return false;
 	if(v2 == nullptr) return false;
 	if(v1->size() != v2->size()) {
-		errorr(("Total number of arguments mismatch in function "+funcName).c_str());
+		errorr(("Total number of arguments mismatch with declaration in function "+funcName).c_str());
 		return false;
 	}
 	int sz = v1->size();
@@ -240,7 +230,6 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 	si->setParams(v);
 	if(found == nullptr){
 		table->insert(si);
-		table->printAll();
 		return;
 	}
 	if(found->getSpec() != 2){
@@ -265,12 +254,10 @@ void insertFunctionIdToSymbolTable(SymbolInfo* si, string specifier, bool isDefi
 		}
 		table->remove(si->getName());
 		table->insert(si);
-		table->printAll();
 		return;
 	}
 	table->insert(si);
 	return;
-	// table->printAll();
 }
 
 void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
@@ -280,14 +267,14 @@ void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
 	}else if(found->getSpec() != 2){
 		errorr((found->getName() + " is not a function").c_str());
 	}else if(found->getParams()->size() != v.size()){
-		cout<<found->getParams()->size()<<endl;
-		cout<<v.size()<<endl;
+		// cout<<found->getParams()->size()<<endl;
+		// cout<<v.size()<<endl;
 		errorr(("Total number of arguments mismatch in function "+found->getName()).c_str());
 	}else if(found->getVarType() == "void" || found->getVarType() == "VOID"){
 		// errorr("Void function used in expression");
 	}else{
 		int sz = v.size();
-		vector<SymbolInfo*> v2= *(found->getParams());
+		vector<SymbolInfo*> v2= *( found->getParams());
 		for(int i=0; i<sz; i++){
 			string t1 = *(v[i]->second);
 			string t2 = v2[i]->getVarType();
@@ -392,7 +379,7 @@ void checkMulOp(string t1, string op, string t2, string s2){
 		if(t1 != "int" || t2 != "int") errorr("Non-Integer operand on modulus operator");
 		if(s2 == "0") errorr("Modulus by Zero");
 	}else if(op == "/"){
-		if(s2 == "0") errorr("Divided by zero");
+		if(s2 == "0" || s2 == "0.0") errorr("Divided by zero");
 	}
 }
 
@@ -435,7 +422,7 @@ void deleteMe(vector<SymbolInfo*>* vsi){
 	delete vsi;
 }
 void deleteMe(SymbolInfo* si){
-	delete si;
+	if(si != nullptr)delete si;
 }
 
 
@@ -546,6 +533,19 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		log((*($$->first) ).c_str());
 		deleteMe($1);
 	}
+	|  type_specifier ID LPAREN error RPAREN {
+			insertFunctionIdToSymbolTable($2, *$1, true, new vector<SymbolInfo*>);
+		} compound_statement {
+		print("func_definition : type_specifier ID LPAREN error RPAREN compound_statement");
+		// insertFunctionIdToSymbolTable($2, *$1, true, $4);
+		warning((*($7->second)+", " + *($1)).c_str());
+		chekAndValidateFunctionSignature(*($1), *($7->second));
+		$$ = createPSS((*$1 + " " + $2->getName() + "(" + getParamList(*(new vector<SymbolInfo*>)) +")" + *($7->first)), *($7->second));
+		string s = *($$->first); 
+		warning(s.c_str());
+		log((*($$->first) ).c_str());
+		deleteMe($1);
+	}	
 	| type_specifier ID LPAREN RPAREN {
 			insertFunctionIdToSymbolTable($2, *$1, true, new vector<SymbolInfo*>);
 		} compound_statement {
@@ -580,6 +580,13 @@ parameter_list  : parameter_list COMMA type_specifier ID {
 		log(getParamList(*$$).c_str());
 		deleteMe($1);
 	}
+	| type_specifier error {
+		errorr("Syntax error");
+		print("parameter_list : type_specifier error");
+		$$ = addParameter(new vector<SymbolInfo*>, new SymbolInfo("XX", (*$1)), *$1);
+		// log((*($$->first)).c_str());
+		log(getParamList(*$$).c_str());
+	}
 	| type_specifier {
 		print("parameter_list : type_specifier");
 		$$ = addParameter(new vector<SymbolInfo*>, new SymbolInfo("", (*$1)), *$1);
@@ -603,9 +610,11 @@ compound_statement : LCURL {table->enterScope(); addParamsToScopeTable();} state
 	| LCURL RCURL {
 		print("compound_statement : LCURL RCURL");
 		$$ = createPSS("{}\n", "void");
-		table->enterScope(); table->exitScope();
-		// log((*($$->first)).c_str());
+		table->enterScope(); 
 		log((*($$->first)).c_str());
+		table->printAll(logout);
+		table->exitScope();
+		// log((*($$->first)).c_str());
 	}
 	;
 
@@ -641,7 +650,7 @@ var_declaration : type_specifier declaration_list SEMICOLON {
 		log((*$$).c_str());
 		deleteMe($1);
 		// cout<<(*$$)<<endl;
-	}
+	} 
 	;
 
 type_specifier	: INT {print("type_specifier : INT"); $$ = new string("int"); log("int");}
@@ -654,11 +663,23 @@ declaration_list : declaration_list COMMA ID {
 		$$ = addDeclaration($1, $3, "0");
 		log(getStringFromDeclarationList(*$$).c_str());
 	}
+	| declaration_list ADDOP ID {
+		errorr("Syntax error, ADDOP used instead of semicolon");
+		print("declaration_list : declaration_list COMMA ID");
+		$$ = addDeclaration($1, $3, "0");
+		log(getStringFromDeclarationList(*$$).c_str());
+	}
 	| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD {
 		print("declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD");
 		$$ = addDeclaration($1, $3, $5->getName());	
 		log(getStringFromDeclarationList(*$$).c_str());
 		deleteMe($5);
+	}
+	| declaration_list COMMA ID LTHIRD RTHIRD {
+		print("declaration_list : declaration_list COMMA ID LTHIRD RTHIRD");
+		errorr("Syntax error, no expresison inside third third brackets");
+		$$ = addDeclaration($1, $3, "1");	
+		log(getStringFromDeclarationList(*$$).c_str());
 	}
 	| ID {	
 		print("declaration_list : ID");
@@ -670,6 +691,12 @@ declaration_list : declaration_list COMMA ID {
 		$$ = addDeclaration(new vector<SymbolInfo*>, $1, $3->getName());
 		log(getStringFromDeclarationList(*$$).c_str());
 		deleteMe($3);
+	} 
+	| ID LTHIRD RTHIRD {	
+		print("declaration_list : ID LTHIRD RTHIRD");
+		errorr("Syntax error, no expresison inside third third brackets");
+		$$ = addDeclaration(new vector<SymbolInfo*>, $1, "1");
+		log(getStringFromDeclarationList(*$$).c_str());
 	} 
 	;
 
@@ -784,6 +811,13 @@ expression_statement : SEMICOLON	{
 		log((*($$->first)).c_str());
 		deleteMe($1);
 	}
+	| expression error{
+		errorr("Syntax error, semicolon missing.");
+		print("expression_statement : expression");
+		$$ = createPSS (*($1->first) + ";", *($1->second));
+		log((*($$->first)).c_str());
+		deleteMe($1);
+	}
 ;
 
 variable : ID 	{
@@ -798,7 +832,14 @@ variable : ID 	{
 		$$ = createPSS ($1->getName() + "[" + *($3->first) + "]", type);
 		log((*($$->first)).c_str());
 		deleteMe($1);deleteMe($3);
-
+	}
+	| ID LTHIRD RTHIRD {
+		print("variable : ID LTHIRD RTHIRD");
+		errorr("Syntax error, no expression inside third bracekts");
+		string type = checkAndValidateID($1->getName(), "0", "CONST_INT");
+		$$ = createPSS ($1->getName() + "[]", type);
+		log((*($$->first)).c_str());
+		deleteMe($1);
 	}
 ;
 
@@ -815,7 +856,11 @@ expression : logic_expression {
 		$$ = createPSS (*($1->first) + "=" + *($3->first), *($1->second));
 		log((*($$->first)).c_str());
 		deleteMe($1);deleteMe($3);
-	} 	
+	} 
+	| error ASSIGNOP logic_expression {
+		errorr("Syntax error");
+		$$ = createPSS("", "null");
+	}
 ;
 
 logic_expression : rel_expression {
@@ -986,6 +1031,9 @@ int main(int argc,char *argv[])
 	}
 	yyin = fp;
 	yyparse();
+	fclose(fp);
+	logout.close();
+	errout.close();
 	return 0;
 }
 

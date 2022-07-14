@@ -25,14 +25,14 @@ public:
             newTable = new ScopeTable(tableSize, currentTable);
         }
         currentTable = newTable;
-        cout<<"New ScopeTable with id "<<currentTable->uniqueId<<" created"<<endl;
+        // cout<<"New ScopeTable with id "<<currentTable->uniqueId<<" created"<<endl;
     }
     void exitScope(){
         if(currentTable == nullptr){
             cout<<"Not in a scope"<<endl;
             return;
         }
-        cout<<"ScopeTable with id "<<currentTable->uniqueId<<" removed"<<endl;
+        // cout<<"ScopeTable with id "<<currentTable->uniqueId<<" removed"<<endl;
         ScopeTable* temp = currentTable;
         
         currentTable = currentTable->parent;
@@ -63,7 +63,7 @@ public:
             if(si != nullptr) return si;
             cur = cur->parent;
             if(cur == nullptr) {
-                cout<<"Not found"<<endl;
+                // cout<<"Not found"<<endl;
                 return nullptr;
             }
         }
@@ -77,13 +77,13 @@ public:
     }
     void printAll(){
         ScopeTable* cur = currentTable;
-        printf("\033[1;46m\n");
+        // printf("\033[1;46m\n");
         while(cur != nullptr){
             cur->print();
             cur = cur->parent;
             if(cur != nullptr)cout<<endl;
         }
-        printf("\033[0m\n");
+        // printf("\033[0m\n");
     }
     void printAll(ofstream &lout){
         ScopeTable* cur = currentTable;

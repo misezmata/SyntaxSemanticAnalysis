@@ -147,7 +147,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 444 "1805090.y"
+#line 430 "1805090.y"
 
 	SymbolInfo* si;
 	vector<SymbolInfo*>* vvector;	
