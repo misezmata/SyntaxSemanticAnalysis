@@ -281,6 +281,7 @@ void validateAndCreateFactor(SymbolInfo* si, vector<pair<string*, string*>*> v){
 			string t2 = v2[i]->getVarType();
 			normalize(t1, t2);
 			if(t1 != t2) {
+				if(t1 == "int" && t2 == "float") continue;
 				string er = to_string(i+1)+"th argument mismatch in function "+found->getName();
 				errorr(er.c_str());
 			}
@@ -1036,6 +1037,7 @@ int main(int argc,char *argv[])
 	fclose(fp);
 	logout.close();
 	errout.close();
+	delete table;
 	return 0;
 }
 
